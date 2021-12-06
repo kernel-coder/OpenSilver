@@ -123,7 +123,7 @@ namespace Windows.UI.Xaml
                 _mainWindow = new Window();
                 Window.Current = _mainWindow;
                 object applicationRootDomElement = INTERNAL_HtmlDomManager.GetApplicationRootDomElement();
-                _mainWindow.AttachToDomElement(applicationRootDomElement);
+                _mainWindow.AttachToDomElement(applicationRootDomElement, 0);
 
                 // Listen to clicks anywhere in the window (this is used to close the popups that are not supposed to stay open):
 #if MIGRATION

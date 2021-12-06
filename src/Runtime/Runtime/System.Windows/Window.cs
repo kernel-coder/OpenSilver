@@ -55,7 +55,7 @@ namespace Windows.UI.Xaml
         /// Set the DOM element that will host the window. This can be set only to new windows. The MainWindow looks for a DIV that has the ID "cshtml5-root" or "opensilver-root".
         /// </summary>
         /// <param name="rootDomElement">The DOM element that will host the window</param>
-        public void AttachToDomElement(object rootDomElement)
+        public void AttachToDomElement(object rootDomElement, int zIndex = -1)
         {
             if (this.INTERNAL_OuterDomElement != null
                 || this.INTERNAL_RootDomElement != null)
@@ -86,6 +86,10 @@ namespace Windows.UI.Xaml
             windowRootDivStyle.height = "100%";
             windowRootDivStyle.overflowX = "hidden";
             windowRootDivStyle.overflowY = "hidden";
+            if (zIndex >= 0)
+            {
+                windowRootDivStyle.zIndex = zIndex.ToString();
+            }
 
             this.INTERNAL_OuterDomElement = windowRootDiv;
             this.INTERNAL_InnerDomElement = windowRootDiv;
