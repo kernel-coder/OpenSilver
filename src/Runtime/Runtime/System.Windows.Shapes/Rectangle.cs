@@ -152,6 +152,9 @@ namespace Windows.UI.Xaml.Shapes
         {
             if (INTERNAL_VisualTreeManager.IsElementInVisualTree(this))
             {
+                var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(_canvasDomElement);
+                context.BeginCache(_canvasDomElement);
+
                 double xOffsetToApplyBeforeMultiplication;
                 double yOffsetToApplyBeforeMultiplication;
                 double xOffsetToApplyAfterMultiplication;
@@ -169,7 +172,6 @@ namespace Windows.UI.Xaml.Shapes
                     ApplyMarginToFixNegativeCoordinates(_marginOffsets);
                 }
 
-                var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(_canvasDomElement);
                 double x = xOffsetToApplyBeforeMultiplication + xOffsetToApplyAfterMultiplication;
                 double y = yOffsetToApplyBeforeMultiplication + yOffsetToApplyAfterMultiplication;
                 double width = sizeX;
@@ -199,8 +201,9 @@ namespace Windows.UI.Xaml.Shapes
                 }
 
                 //todo: make sure the parameters below are correct.
-                Shape.DrawFillAndStroke(this, "evenodd", xOffsetToApplyAfterMultiplication, yOffsetToApplyAfterMultiplication, xOffsetToApplyAfterMultiplication + sizeX, yOffsetToApplyAfterMultiplication + sizeY, horizontalMultiplicator, verticalMultiplicator, xOffsetToApplyBeforeMultiplication, yOffsetToApplyBeforeMultiplication, shapeActualSize);
+                Shape.DrawFillAndStroke(this, context, "evenodd", xOffsetToApplyAfterMultiplication, yOffsetToApplyAfterMultiplication, xOffsetToApplyAfterMultiplication + sizeX, yOffsetToApplyAfterMultiplication + sizeY, horizontalMultiplicator, verticalMultiplicator, xOffsetToApplyBeforeMultiplication, yOffsetToApplyBeforeMultiplication, shapeActualSize);
 
+                context.FlushCache();
                 //context.fill("evenodd"); //note: remember: always fill before stroke, otherwise the filling will hide the stroke.
                 //if (StrokeThickness > 0 && Stroke != null)
                 //{

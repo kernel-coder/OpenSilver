@@ -136,8 +136,8 @@ namespace Windows.UI.Xaml.Media
 
         // note: we only define the line. Erasing the previous one (if any) and actually drawing the 
         // new one should be made directly by the container.
-        internal protected override void DefineInCanvas(Path path, 
-                                                        object canvasDomElement, 
+        internal protected override void DefineInCanvas(Path path,
+                                                        INTERNAL_Html2dContextReference ctx, 
                                                         double horizontalMultiplicator, 
                                                         double verticalMultiplicator, 
                                                         double xOffsetToApplyBeforeMultiplication, 
@@ -146,8 +146,6 @@ namespace Windows.UI.Xaml.Media
                                                         double yOffsetToApplyAfterMultiplication, 
                                                         Size shapeActualSize)
         {
-            var ctx = INTERNAL_HtmlDomManager.Get2dCanvasContext(canvasDomElement);
-
             ctx.moveTo(StartPoint.X, StartPoint.Y);
             ctx.lineTo(EndPoint.X, EndPoint.Y);
         }

@@ -212,13 +212,11 @@ namespace Windows.UI.Xaml.Media
                                      double xOffsetToApplyAfterMultiplication, 
                                      double yOffsetToApplyAfterMultiplication, 
                                      double horizontalMultiplicator, 
-                                     double verticalMultiplicator, 
-                                     object canvasDomElement, 
+                                     double verticalMultiplicator,
+                                     INTERNAL_Html2dContextReference context, 
                                      double strokeThickness, 
                                      Size shapeActualSize)
         {
-            var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(canvasDomElement);
-
             // todo: In order to support IsFilled, add a call to context.beginPath() here 
             // (instead the call to beginPath() that is located in "Path.cs") and handle 
             // the filling here (in the PathFigure) instead of in the Redraw of the Path.
@@ -240,7 +238,7 @@ namespace Windows.UI.Xaml.Media
                                                                  yOffsetToApplyAfterMultiplication, 
                                                                  horizontalMultiplicator, 
                                                                  verticalMultiplicator, 
-                                                                 canvasDomElement, 
+                                                                 context, 
                                                                  segmentStartingPosition);
             }
             if (IsClosed) // we close the figure:

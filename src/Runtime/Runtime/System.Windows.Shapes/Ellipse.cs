@@ -64,6 +64,8 @@ namespace Windows.UI.Xaml.Shapes
         {
             if (INTERNAL_VisualTreeManager.IsElementInVisualTree(this))
             {
+                var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(_canvasDomElement);
+                context.BeginCache(_canvasDomElement);
                 double xOffsetToApplyBeforeMultiplication;
                 double yOffsetToApplyBeforeMultiplication;
                 double xOffsetToApplyAfterMultiplication;
@@ -82,11 +84,12 @@ namespace Windows.UI.Xaml.Shapes
                 }
 
                 //todo: size might not perfectly match that of she designer. (so it might be very different from it in big ellipses?)
-                INTERNAL_ShapesDrawHelpers.PrepareEllipse(_canvasDomElement, sizeX, sizeY, sizeX / 2 + xOffsetToApplyBeforeMultiplication + xOffsetToApplyAfterMultiplication, sizeY / 2 + yOffsetToApplyBeforeMultiplication + yOffsetToApplyAfterMultiplication);
+                INTERNAL_ShapesDrawHelpers.PrepareEllipse(context, sizeX, sizeY, sizeX / 2 + xOffsetToApplyBeforeMultiplication + xOffsetToApplyAfterMultiplication, sizeY / 2 + yOffsetToApplyBeforeMultiplication + yOffsetToApplyAfterMultiplication);
 
                 //todo: make sure the parameters below are correct.
-                Shape.DrawFillAndStroke(this, "evenodd", xOffsetToApplyAfterMultiplication, yOffsetToApplyAfterMultiplication, xOffsetToApplyAfterMultiplication + sizeX, yOffsetToApplyAfterMultiplication + sizeY, horizontalMultiplicator, verticalMultiplicator, xOffsetToApplyBeforeMultiplication, yOffsetToApplyBeforeMultiplication, shapeActualSize);
+                Shape.DrawFillAndStroke(this, context, "evenodd", xOffsetToApplyAfterMultiplication, yOffsetToApplyAfterMultiplication, xOffsetToApplyAfterMultiplication + sizeX, yOffsetToApplyAfterMultiplication + sizeY, horizontalMultiplicator, verticalMultiplicator, xOffsetToApplyBeforeMultiplication, yOffsetToApplyBeforeMultiplication, shapeActualSize);
 
+                context.FlushCache();
 
                 //dynamic context = INTERNAL_HtmlDomManager.Get2dCanvasContext(_canvasDomElement);
                 //if (fillValue != null || (fillValue is string && !string.IsNullOrWhiteSpace((string)fillValue)))

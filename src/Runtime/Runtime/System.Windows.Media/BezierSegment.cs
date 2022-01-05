@@ -127,12 +127,10 @@ namespace Windows.UI.Xaml.Media
                                                double xOffsetToApplyAfterMultiplication, 
                                                double yOffsetToApplyAfterMultiplication, 
                                                double horizontalMultiplicator, 
-                                               double verticalMultiplicator, 
-                                               object canvasDomElement, 
+                                               double verticalMultiplicator,
+                                               INTERNAL_Html2dContextReference context, 
                                                Point previousLastPoint)
         {
-            var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(canvasDomElement);
-
             // tell the context that there should be a cubic bezier curve from the 
             // starting point to this point, with the two previous points as control points.
             context.bezierCurveTo(

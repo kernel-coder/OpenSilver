@@ -12,6 +12,7 @@
 *  
 \*====================================================================================*/
 
+using CSHTML5.Internal;
 using System;
 using System.Collections.Generic;
 using System.Windows.Markup;
@@ -173,8 +174,8 @@ namespace Windows.UI.Xaml.Media
         /// <summary>
         /// Applies FillStyle, StrokeStyle + Adds the figures to the canvas' context, then calls the Fill method.
         /// </summary>
-        internal protected override void DefineInCanvas(Path path, 
-                                                        object canvasDomElement, 
+        internal protected override void DefineInCanvas(Path path,
+                                                        INTERNAL_Html2dContextReference ctx, 
                                                         double horizontalMultiplicator, 
                                                         double verticalMultiplicator, 
                                                         double xOffsetToApplyBeforeMultiplication, 
@@ -199,7 +200,7 @@ namespace Windows.UI.Xaml.Media
                                           yOffsetToApplyAfterMultiplication, 
                                           horizontalMultiplicator, 
                                           verticalMultiplicator, 
-                                          canvasDomElement, 
+                                          ctx, 
                                           this.ParentPath != null ? this.ParentPath.StrokeThickness : 0, // Note : this paramater is unused 
                                           shapeActualSize);
                 }

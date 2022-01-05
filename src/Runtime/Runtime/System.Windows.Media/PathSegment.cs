@@ -13,6 +13,7 @@
 \*====================================================================================*/
 
 
+using CSHTML5.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +59,7 @@ namespace Windows.UI.Xaml.Media
         /// <param name="yOffsetToApplyAfterMultiplication"></param>
         /// <param name="horizontalMultiplicator"></param>
         /// <param name="verticalMultiplicator"></param>
-        /// <param name="canvasDomElement"></param>
+        /// <param name="context"></param>
         /// <param name="previousLastPOint"></param>
         /// <returns>The position of the last point of the segment (that will be the starting position for the next segment).</returns>
         internal abstract Point DefineInCanvas(double xOffsetToApplyBeforeMultiplication, 
@@ -66,8 +67,8 @@ namespace Windows.UI.Xaml.Media
                                                double xOffsetToApplyAfterMultiplication, 
                                                double yOffsetToApplyAfterMultiplication, 
                                                double horizontalMultiplicator, 
-                                               double verticalMultiplicator, 
-                                               object canvasDomElement, 
+                                               double verticalMultiplicator,
+                                               INTERNAL_Html2dContextReference context, 
                                                Point previousLastPOint);
 
         internal abstract Point GetMinMaxXY(ref double minX,

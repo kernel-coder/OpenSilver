@@ -137,8 +137,8 @@ namespace Windows.UI.Xaml.Media
             maxY = Math.Max(maxY, maxOrd);
         }
 
-        internal protected override void DefineInCanvas(Shapes.Path path, 
-                                                        object canvasDomElement, 
+        internal protected override void DefineInCanvas(Shapes.Path path,
+                                                        INTERNAL_Html2dContextReference ctx, 
                                                         double horizontalMultiplicator, 
                                                         double verticalMultiplicator, 
                                                         double xOffsetToApplyBeforeMultiplication, 
@@ -147,8 +147,6 @@ namespace Windows.UI.Xaml.Media
                                                         double yOffsetToApplyAfterMultiplication, 
                                                         Size shapeActualSize)
         {
-            var ctx = INTERNAL_HtmlDomManager.Get2dCanvasContext(canvasDomElement);
-
             ctx.ellipse(
                 Center.X + xOffsetToApplyBeforeMultiplication + xOffsetToApplyAfterMultiplication,
                 Center.Y + yOffsetToApplyBeforeMultiplication + yOffsetToApplyAfterMultiplication,

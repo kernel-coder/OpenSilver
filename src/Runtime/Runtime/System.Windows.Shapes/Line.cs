@@ -181,6 +181,8 @@ namespace Windows.UI.Xaml.Shapes
         {
             if (INTERNAL_VisualTreeManager.IsElementInVisualTree(this))
             {
+                var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(_canvasDomElement);
+                context.BeginCache(_canvasDomElement);
                 double minX = X1;
                 double minY = Y1;
                 double maxX = X2;
@@ -214,10 +216,10 @@ namespace Windows.UI.Xaml.Shapes
                     ApplyMarginToFixNegativeCoordinates(_marginOffsets);
                 }
 
-                object context = CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.getContext('2d')", _canvasDomElement); //Note: we do not use INTERNAL_HtmlDomManager.Get2dCanvasContext here because we need to use the result in ExecuteJavaScript, which requires the value to come from a call of ExecuteJavaScript.
+                //object context = CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.getContext('2d')", _canvasDomElement); //Note: we do not use INTERNAL_HtmlDomManager.Get2dCanvasContext here because we need to use the result in ExecuteJavaScript, which requires the value to come from a call of ExecuteJavaScript.
 
                 //we remove the previous drawing:
-                CSHTML5.Interop.ExecuteJavaScriptAsync("$0.clearRect(0,0, $1, $2)", context, shapeActualSize.Width, shapeActualSize.Height);
+                context.clearRect(0, 0, shapeActualSize.Width, shapeActualSize.Height);
 
 
                 //double preparedX1 = (X1 + xOffsetToApplyBeforeMultiplication) * horizontalMultiplicator + xOffsetToApplyAfterMultiplication;
@@ -238,10 +240,8 @@ namespace Windows.UI.Xaml.Shapes
                 if (strokeValue != null && StrokeThickness > 0)
                 {
                     double thickness = StrokeThickness;
-                    CSHTML5.Interop.ExecuteJavaScriptAsync(@"
-$0.strokeStyle = $1", context, strokeValue);
-                    CSHTML5.Interop.ExecuteJavaScriptAsync(@"
-$0.lineWidth = $1", context, StrokeThickness);
+                    context.strokeStyle = strokeValue.ToString();
+                    context.lineWidth = StrokeThickness;
                     if (StrokeDashArray != null)
                     {
 #if OPENSILVER
@@ -271,19 +271,19 @@ if ($0.setLineDash)
                 }
 
 
-                INTERNAL_ShapesDrawHelpers.PrepareLine(_canvasDomElement, new Point(preparedX1, preparedY1), new Point(preparedX2, preparedY2));
+                INTERNAL_ShapesDrawHelpers.PrepareLine(context, new Point(preparedX1, preparedY1), new Point(preparedX2, preparedY2));
 
                 if (strokeValue != null)
-                    CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.strokeStyle = $1", context, strokeValue);
+                    context.strokeStyle = strokeValue.ToString();
 
                 //context.strokeStyle = strokeAsString; //set the shape's lines color
-                CSHTML5.Interop.ExecuteJavaScriptAsync("$0.lineWidth= $1", context, StrokeThickness);
+                context.lineWidth = StrokeThickness;
                 //context.lineWidth = StrokeThickness.ToString();
                 if (Stroke != null && StrokeThickness > 0)
                 {
-                    CSHTML5.Interop.ExecuteJavaScriptAsync("$0.stroke()", context); //draw the line
-                    //context.stroke(); //draw the line
+                    context.stroke(); //draw the line
                 }
+                context.FlushCache();
             }
         }
 

@@ -105,12 +105,12 @@ namespace Windows.UI.Xaml.Media
                                                double xOffsetToApplyAfterMultiplication, 
                                                double yOffsetToApplyAfterMultiplication, 
                                                double horizontalMultiplicator, 
-                                               double verticalMultiplicator, 
-                                               object canvasDomElement, 
+                                               double verticalMultiplicator,
+                                               INTERNAL_Html2dContextReference context, 
                                                Point previousLastPoint)
         {
             //todo: the size of the canvas
-            var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(canvasDomElement);
+ 
             foreach (Point point in Points)
             {
                 // tell the context that there should be a line from the starting point to this point

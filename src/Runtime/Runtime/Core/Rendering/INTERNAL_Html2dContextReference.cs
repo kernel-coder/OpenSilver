@@ -16,10 +16,12 @@
 //#define CHECK_THAT_ID_EXISTS 
 //#define PERFORMANCE_ANALYSIS
 
+using OpenSilver.Internal;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Text;
 
 namespace CSHTML5.Internal
 {
@@ -29,11 +31,24 @@ namespace CSHTML5.Internal
 #endif
 
 #if CSHTML5NETSTANDARD
-    public class INTERNAL_Html2dContextReference : DynamicObject
+    public class INTERNAL_Html2dContextReference
 #else
-    internal class INTERNAL_Html2dContextReference : DynamicObject
+    internal class INTERNAL_Html2dContextReference 
 #endif
     {
+        private static double? _dpi = null;
+        internal static double DPI
+        {
+            get
+            {
+                if (_dpi == null)
+                {
+                    _dpi = Convert.ToDouble(OpenSilver.Interop.ExecuteJavaScript("window.devicePixelRatio"));
+                }
+                return _dpi.Value;
+            }
+        }
+
         static Dictionary<string, INTERNAL_Html2dContextReference> IdToInstance = new Dictionary<string, INTERNAL_Html2dContextReference>();
 
         public static INTERNAL_Html2dContextReference GetInstance(string elementId)
@@ -56,21 +71,6 @@ namespace CSHTML5.Internal
             _domElementUniqueIdentifier = elementId;
         }
 
-        public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
-        {
-            string methodName = binder.Name;
-            result = InvokeMethod(methodName, args);
-            return true;
-        }
-
-        public override bool TrySetMember(SetMemberBinder binder, object value)
-        {
-            string propertyName = binder.Name;
-            string propertyValue = (string)value;
-            SetPropertyValue(propertyName, propertyValue);
-            return true;
-        }
-
         void SetPropertyValue(string propertyName, string propertyValue)
         {
             string javaScriptCodeToExecute = "document.set2dContextProperty(\"" + _domElementUniqueIdentifier + "\",\"" + propertyName + "\",\"" + propertyValue + "\")";
@@ -90,35 +90,275 @@ namespace CSHTML5.Internal
             //result = null;
         }
 
-        public string fillStyle { set { SetPropertyValue("fillStyle", value); } }
-        public string strokeStyle { set { SetPropertyValue("strokeStyle", value); } }
-        public string lineWidth { set { SetPropertyValue("lineWidth", value); } }
-        public string lineDashOffset { set { SetPropertyValue("lineDashOffset", value); } }
+        public string fillStyle 
+        { 
+            set 
+            {
+                if (Ctx == null) SetPropertyValue("fillStyle", value);
+                else AddProp("fillStyle", value);
+            } 
+        }
+        public string strokeStyle
+        {
+            set
+            {
+                if (Ctx == null) SetPropertyValue("strokeStyle", value);
+                else AddProp("strokeStyle", value);
+            }
+        }
 
+        public string lineJoin
+        {
+            set
+            {
+                if (Ctx == null) SetPropertyValue("lineJoin", value);
+                else AddProp("lineJoin", value);
+            }
+        }
 
-        public void transform(params object[] args) { InvokeMethod("transform", args); }
-        public void translate(params object[] args) { InvokeMethod("translate", args); }
-        public void rotate(params object[] args) { InvokeMethod("rotate", args); }
-        public void scale(params object[] args) { InvokeMethod("scale", args); }
+        public double miterLimit
+        {
+            set
+            {
+                if (Ctx == null) SetPropertyValue("miterLimit", (DPI * value).ToInvariantString());
+                else AddProp("miterLimit", DPI * value);
+            }
+        }
 
-        public void save(params object[] args) { InvokeMethod("save", args); }
-        public void restore(params object[] args) { InvokeMethod("restore", args); }
+        public double lineWidth
+        {
+            set
+            {
+                if (Ctx == null) SetPropertyValue("lineWidth", (DPI * value).ToInvariantString());
+                else AddProp("lineWidth", DPI * value);
+            }
+        }
+        
+        public double lineDashOffset
+        {
+            set
+            {
+                if (Ctx == null) SetPropertyValue("lineDashOffset", (DPI * value).ToInvariantString());
+                else AddProp("lineDashOffset", DPI * value);
+            }
+        }
+        
+        public void transform(double a, double b, double c, double d, double e, double f)
+        {
+            var args = new object[] { a, b, c , d,  e * DPI, f * DPI };
+            if (Ctx == null) InvokeMethod("transform", args);
+            else AddLineEmbArg("transform", args);
+        }
 
-        public void fill(params object[] args) { InvokeMethod("fill", args); }
-        public void stroke(params object[] args) { InvokeMethod("stroke", args); }
-        public void setLineDash(params object[] args) { InvokeMethod("setLineDash", args); }
+        public void translate(double x, double y)
+        {
+            var args = new object[] { x * DPI, y * DPI };
+            if (Ctx == null) InvokeMethod("translate", args);
+            else AddLineEmbArg("translate", args);
+        }
 
-        public void beginPath(params object[] args) { InvokeMethod("beginPath", args); }
-        public void closePath(params object[] args) { InvokeMethod("closePath", args); }
-        public void createLinearGradient(params object[] args) { InvokeMethod("createLinearGradient", args); }
+        public void rotate(double angle)
+        {
+            var args = new object[] { angle };
+            if (Ctx == null) InvokeMethod("rotate", args);
+            else AddLineEmbArg("rotate", args);
+        }
 
-        public void arc(params object[] args) { InvokeMethod("arc", args); }
-        public void ellipse(params object[] args) { InvokeMethod("ellipse", args); }
-        public void rect(params object[] args) { InvokeMethod("rect", args); }
+        public void scale(double x, double y)
+        {
+            var args = new object[] { x * DPI, y * DPI };
+            if (Ctx == null) InvokeMethod("scale", args);
+            else AddLineEmbArg("scale", args);
+        }
 
-        public void moveTo(params object[] args) { InvokeMethod("moveTo", args); }
-        public void lineTo(params object[] args) { InvokeMethod("lineTo", args); }
-        public void bezierCurveTo(params object[] args) { InvokeMethod("bezierCurveTo", args); }
-        public void quadraticCurveTo(params object[] args) { InvokeMethod("quadraticCurveTo", args); }
+        public void save()
+        {
+            if (Ctx == null) InvokeMethod("save", new object[] { });
+            else AddLineEmbArg("save", new object[] { });
+        }
+
+        public void restore()
+        {
+            if (Ctx == null) InvokeMethod("restore", new object[] { });
+            else AddLineEmbArg("restore", new object[] { });
+        }
+
+        public void fill(string fillRule = "evenodd")
+        {
+            if (Ctx == null) InvokeMethod("fill", new object[] { "'" + fillRule + "'" });
+            else AddLineEmbArg("fill", new object[] { "'" + fillRule + "'" });
+        }
+
+        public void stroke() 
+        {
+            if (Ctx == null) InvokeMethod("stroke", new object[] { });
+            else AddLineEmbArg("stroke", new object[] { });
+        }
+
+        public void setLineDash(params object[] args) 
+        {
+            if (Ctx == null) InvokeMethod("setLineDash", args);
+            else AddLine("setLineDash", args);
+        }
+
+        public void beginPath()
+        {
+            if (Ctx == null) InvokeMethod("beginPath", new object[] { });
+            else AddLineEmbArg("beginPath", new object[] { });
+        }
+
+        public void closePath() 
+        {
+            if (Ctx == null) InvokeMethod("closePath", new object[] { });
+            else AddLineEmbArg("closePath", new object[] { });
+        }
+
+        public void createLinearGradient(params object[] args) 
+        {
+            if (Ctx == null) InvokeMethod("createLinearGradient", args);
+            else AddLine("createLinearGradient", args);
+        }
+
+        public void arc(double x, double y, double r, double sAngle, double eAngle, bool counterclockwise = false)
+        {
+            var args = new object[] { x * DPI, y * DPI, r * DPI, sAngle, eAngle, counterclockwise ? "true" : "false" };
+            if (Ctx == null) InvokeMethod("arc", args);
+            else AddLineEmbArg("arc", args);
+        }
+
+        public void arcTo(double x1, double y1, double x2, double y2, double r)
+        {
+            var args = new object[] { x1 * DPI, y1 * DPI, x2 * DPI, y2 * DPI, r * DPI };
+            if (Ctx == null) InvokeMethod("arcTo", args);
+            else AddLineEmbArg("arcTo", args);
+        }
+
+        public void ellipse(double x, double y, double radx, double rady, double xAngle, double yAngle, double angle)
+        {
+            var args = new object[] { x * DPI, y * DPI, radx * DPI, rady * DPI, xAngle, yAngle, angle };
+            if (Ctx == null) InvokeMethod("ellipse", args);
+            else AddLineEmbArg("ellipse", args);
+        }
+
+        public void rect(double x, double y, double w, double h)
+        {
+            var args = new object[] { x * DPI, y * DPI, w * DPI, h * DPI };
+            if (Ctx == null) InvokeMethod("rect", args);
+            else AddLineEmbArg("rect", args);
+        }
+
+        public void clearRect(double x, double y, double w, double h)
+        {
+            var args = new object[] { x * DPI, y * DPI, w * DPI, h * DPI };
+            if (Ctx == null) InvokeMethod("clearRect", args);
+            else AddLineEmbArg("clearRect", args);
+        }
+
+        public void moveTo(double x, double y)
+        {
+            var args = new object[] { x * DPI, y * DPI };
+            if (Ctx == null) InvokeMethod("moveTo", args);
+            else AddLineEmbArg("moveTo", args);
+        }
+
+        public void lineTo(double x, double y)
+        {
+            var args = new object[] { x * DPI, y * DPI };
+            if (Ctx == null) InvokeMethod("lineTo", args);
+            else AddLineEmbArg("lineTo", args);
+        }
+
+        public void bezierCurveTo(double cp1x, double cp1y, double cp2x, double cp2y, double x, double y)
+        {
+            var args = new object[] { cp1x * DPI, cp1y * DPI, cp2x * DPI, cp2y * DPI, x * DPI, y * DPI };
+            if (Ctx == null) InvokeMethod("bezierCurveTo", args);
+            else AddLineEmbArg("bezierCurveTo", args);
+        }
+
+        public void quadraticCurveTo(double cpx, double cpy, double x, double y)
+        {
+            var args = new object[] { cpx * DPI, cpy * DPI, x * DPI, y * DPI };
+            if (Ctx == null) InvokeMethod("quadraticCurveTo", args);
+            else AddLineEmbArg("quadraticCurveTo", args);
+        }
+
+        public object Ctx { get; private set; }
+        private StringBuilder _lines = new StringBuilder();
+        private List<object> _args = new List<object>();
+
+        private void AddLine(string cmd, object[] args)
+        {
+            StringBuilder line = new StringBuilder();
+            line.Append("$0." + cmd);
+            line.Append("(");
+            for (int i = 0; i < args.Length; i++)
+            {
+                line.Append( "$" + _args.Count.ToString());
+                if (i < args.Length - 1)
+                {
+                    line.Append(',');
+                }
+
+                _args.Add(args[i]);
+            }
+
+            line.Append(");");
+            _lines.Append(line);
+        }
+
+        private void AddLineEmbArg(string cmd, object[] args)
+        {
+            StringBuilder line = new StringBuilder();
+            line.Append("$0." + cmd);
+            line.Append("(");
+            for(int i = 0; i < args.Length; i++)
+            {
+                line.Append(args[i].ToInvariantString());
+                if (i < args.Length - 1)
+                {
+                    line.Append(',');
+                }
+            }
+
+            line.Append(");");
+            _lines.Append(line);
+        }
+
+        private void AddProp(string prop, object arg)
+        {
+            StringBuilder line = new StringBuilder();
+            line.Append("$0." + prop + "=");
+            if (arg is string)
+            {
+                line.Append("'");
+            }
+
+            line.Append(arg.ToInvariantString());
+
+            if (arg is string)
+            {
+                line.Append("'");
+            }
+
+            line.Append(";");
+            _lines.Append(line);
+        }
+
+        public void BeginCache(Object canvas)
+        {
+            if (canvas == null || Ctx != null) return;
+
+            Ctx = OpenSilver.Interop.ExecuteJavaScriptAsync(@"$0.getContext('2d')", canvas);
+            _args.Add(Ctx);
+        }
+
+        public void FlushCache()
+        {
+            if (Ctx == null) return;
+            OpenSilver.Interop.ExecuteJavaScriptAsync(_lines.ToString(), _args.ToArray());
+            Ctx = null;
+            _lines.Clear();
+            _args.Clear();
+        }
     }
 }

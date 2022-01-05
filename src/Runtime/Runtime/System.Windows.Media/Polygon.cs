@@ -117,6 +117,9 @@ namespace Windows.UI.Xaml.Shapes
 				return;
 			}
 
+			var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(_canvasDomElement);
+			context.BeginCache(_canvasDomElement);
+
 			double minX = Points[0].X;
 			double minY = Points[0].Y;
 			double maxX = Points[0].X;
@@ -148,10 +151,8 @@ namespace Windows.UI.Xaml.Shapes
 				ApplyMarginToFixNegativeCoordinates(_marginOffsets);
 			}
 
-			object context = CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.getContext('2d')", _canvasDomElement);
-
 			//we remove the previous drawing:
-			CSHTML5.Interop.ExecuteJavaScriptAsync("$0.clearRect(0,0, $1, $2)", context, shapeActualSize.Width, shapeActualSize.Height);
+			context.clearRect(0, 0, shapeActualSize.Width, shapeActualSize.Height);
 
 			double opacity = Stroke == null ? 1 : Stroke.Opacity;
 			object strokeValue = GetHtmlBrush(this, context, Stroke, opacity, minX, minY, maxX, maxY, horizontalMultiplicator, verticalMultiplicator, xOffsetToApplyBeforeMultiplication, yOffsetToApplyBeforeMultiplication, shapeActualSize);
@@ -159,24 +160,27 @@ namespace Windows.UI.Xaml.Shapes
 
 			if (fillValue != null)
 			{
-				CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.fillStyle = $1", context, fillValue);
+				context.fillStyle = fillValue.ToString();
+				//CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.fillStyle = $1", context, fillValue);
 			}
 			else
 			{
 				// If fillValue is not set it will be black.
-				CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.fillStyle = 'transparent'", context);
+				context.fillStyle = "transparent";
+				//CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.fillStyle = 'transparent'", context);
 			}
 
-			INTERNAL_ShapesDrawHelpers.PreparePolygon(_canvasDomElement, Points);
+			INTERNAL_ShapesDrawHelpers.PrepareLines(context, Points, StrokeThickness, true);
 
 			if (strokeValue != null)
-				CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.strokeStyle = $1", context, strokeValue);
+				context.strokeStyle = strokeValue.ToString();
 
-			CSHTML5.Interop.ExecuteJavaScriptAsync("$0.lineWidth = $1", context, StrokeThickness.ToString());
+			context.lineWidth = StrokeThickness ;
 			if (Stroke != null && StrokeThickness > 0)
 			{
-				CSHTML5.Interop.ExecuteJavaScriptAsync("$0.stroke()", context);
+				context.stroke();
 			}
+			context.FlushCache();
 		}
 	}
 }

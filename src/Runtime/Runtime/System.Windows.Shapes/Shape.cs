@@ -326,7 +326,7 @@ namespace Windows.UI.Xaml.Shapes
                 nameof(StrokeMiterLimit), 
                 typeof(double), 
                 typeof(Shape), 
-                new PropertyMetadata(0d));
+                new PropertyMetadata(10d));
 
         /// <summary>
         /// Gets or sets a collection of Double values that indicates the pattern of
@@ -396,7 +396,7 @@ namespace Windows.UI.Xaml.Shapes
                 if (shape._canvasDomElement != null)
                 {
                     var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(shape._canvasDomElement);
-                    context.lineDashOffset = shape.StrokeDashOffset.ToInvariantString();
+                    context.lineDashOffset = shape.StrokeDashOffset;
                 }
             }
         }
@@ -432,7 +432,7 @@ namespace Windows.UI.Xaml.Shapes
             if (INTERNAL_VisualTreeManager.IsElementInVisualTree(this))
             {
                 var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(_canvasDomElement);
-                context.lineWidth = StrokeThickness.ToInvariantString();
+                context.lineWidth = StrokeThickness;
                 ScheduleRedraw();
             }
         }
@@ -600,6 +600,7 @@ namespace Windows.UI.Xaml.Shapes
         /// This method calls the fill and stroke methods while isolating the possible transformations that the GetHtmlBrush does.
         /// </summary>
         /// <param name="shape"></param>
+        /// <param name="context"></param>
         /// <param name="fillRule"></param>
         /// <param name="minX"></param>
         /// <param name="minY"></param>
@@ -611,6 +612,7 @@ namespace Windows.UI.Xaml.Shapes
         /// <param name="yOffsetToApplyBeforeMultiplication"></param>
         /// <param name="shapeActualSize"></param>
         internal static void DrawFillAndStroke(Shape shape, 
+                                               INTERNAL_Html2dContextReference context,
                                                string fillRule, 
                                                double minX, 
                                                double minY, 
@@ -622,117 +624,59 @@ namespace Windows.UI.Xaml.Shapes
                                                double yOffsetToApplyBeforeMultiplication, 
                                                Size shapeActualSize)
         {
+           
             // Note: we do not use INTERNAL_HtmlDomManager.Get2dCanvasContext here because we need 
             // to use the result in ExecuteJavaScript, which requires the value to come from a call of ExecuteJavaScript.
-            object context = CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.getContext('2d')", shape._canvasDomElement);
-
-            // we remove the previous drawing:
-            // todo: make sure this is correct, especially when shrinking the ellipse (width and height may already have been applied).
-            CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.clearRect(0, 0, $1, $2)", context, shapeActualSize.Width, shapeActualSize.Height); 
-
-
-            // context.save() for the fill
-            CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.save()", context);
-
             // FillStyle:
             double opacity = shape.Fill == null ? 1 : shape.Fill.Opacity;
-            object fillValue = GetHtmlBrush(shape, 
-                                            context, 
-                                            shape.Fill, 
-                                            opacity, 
-                                            minX, 
-                                            minY, 
-                                            maxX, 
-                                            maxY, 
-                                            horizontalMultiplicator, 
-                                            verticalMultiplicator, 
-                                            xOffsetToApplyBeforeMultiplication, 
-                                            yOffsetToApplyBeforeMultiplication, 
+            object fillValue = GetHtmlBrush(shape,
+                                            context.Ctx,
+                                            shape.Fill,
+                                            opacity,
+                                            minX,
+                                            minY,
+                                            maxX,
+                                            maxY,
+                                            horizontalMultiplicator,
+                                            verticalMultiplicator,
+                                            xOffsetToApplyBeforeMultiplication,
+                                            yOffsetToApplyBeforeMultiplication,
                                             shapeActualSize);
-
-            if (fillValue != null)
-            {
-                CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.fillStyle = $1", context, fillValue);
-            }
-            else
-            {
-                CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.fillStyle = ''", context);
-            }
-
-            if (shape.Fill != null)
-            {
-                // Note: I am not sure that calling fill("evenodd") works properly in Edge, the canvasRenderingContext2d 
-                // has a msfillRule property which might be the intended way to use the evenodd rule when in Edge.
-                CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.fill($1)", context, fillRule); 
-            }
-
-            // restore after fill then save before stroke
-            CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.restore(); $0.save()", context); 
 
             //stroke
             opacity = shape.Stroke == null ? 1 : shape.Stroke.Opacity;
-            object strokeValue = GetHtmlBrush(shape, 
-                                              context, 
-                                              shape.Stroke, 
-                                              opacity, 
-                                              minX, 
-                                              minY, 
-                                              maxX, 
-                                              maxY, 
-                                              horizontalMultiplicator, 
-                                              verticalMultiplicator, 
-                                              xOffsetToApplyBeforeMultiplication, 
-                                              yOffsetToApplyBeforeMultiplication, 
+            object strokeValue = GetHtmlBrush(shape,
+                                              context.Ctx,
+                                              shape.Stroke,
+                                              opacity,
+                                              minX,
+                                              minY,
+                                              maxX,
+                                              maxY,
+                                              horizontalMultiplicator,
+                                              verticalMultiplicator,
+                                              xOffsetToApplyBeforeMultiplication,
+                                              yOffsetToApplyBeforeMultiplication,
                                               shapeActualSize);
 
-            double strokeThickness = shape.StrokeThickness;
-            if (shape.Stroke == null)
+            context.clearRect(0, 0, shapeActualSize.Width, shapeActualSize.Height);
+            context.save();
+            context.lineJoin = shape.StrokeLineJoin.ToString().ToLower();
+            context.miterLimit = shape.StrokeMiterLimit;
+            if (fillValue != null)
             {
-                strokeThickness = 0;
+                context.fillStyle = fillValue != null ? fillValue.ToString() : "";
+                context.fill(fillRule);
             }
-
-            // we set the colors and style of the shape:
-            if (strokeValue != null && strokeThickness > 0)
+            context.restore();
+            if (strokeValue != null && shape.StrokeThickness > 0)
             {
-                double thickness = shape.StrokeThickness;
-                CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.strokeStyle = $1", context, strokeValue);
-                CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.lineWidth = $1", context, strokeThickness);
-                DoubleCollection strokeDashArray = shape.StrokeDashArray;
-                if (strokeDashArray != null)
-                {
-#if OPENSILVER
-                    if (true)
-#elif BRIDGE
-                    if (CSHTML5.Interop.IsRunningInTheSimulator)
-#endif
-                    {
-                        // todo: put a message saying that it doesn't work in certain browsers (maybe use a static boolean to put that message only once)
-                    }
-                    else
-                    {
-                        object options = CSHTML5.Interop.ExecuteJavaScript(@"new Array()");
-                        for (int i = 0; i < strokeDashArray.Count; ++i)
-                        {
-                            CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0[$1] = $2;", 
-                                                                   options, 
-                                                                   i, 
-                                                                   strokeDashArray[i] * thickness);
-                        }
-
-                        CSHTML5.Interop.ExecuteJavaScriptAsync(@"if ($0.setLineDash) $0.setLineDash($1)", context, options);
-                    }
-                }
-
-                if (shape.Stroke != null && shape.StrokeThickness > 0)
-                {
-                    CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.stroke()", context);
-                }
-
-                CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.restore()", context);
+                context.save();
+                context.strokeStyle = strokeValue != null ? strokeValue.ToString() : "";
+                context.lineWidth = shape.StrokeThickness;
+                context.stroke();
+                context.restore();
             }
-
-            //todo: make sure this is correct, especially when shrinking the ellipse (width and height may already have been applied).
-            CSHTML5.Interop.ExecuteJavaScriptAsync(@"$0.lineWidth = $1", context, shape.StrokeThickness);
         }
 
         internal static object GetHtmlBrush(Shape shape, 

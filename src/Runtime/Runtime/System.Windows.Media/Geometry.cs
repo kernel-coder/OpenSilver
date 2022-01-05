@@ -11,6 +11,7 @@
 *  
 \*====================================================================================*/
 
+using CSHTML5.Internal;
 using System;
 
 #if MIGRATION
@@ -45,8 +46,8 @@ namespace Windows.UI.Xaml.Media
         /// <summary>
         /// Draws the Geometry on the canvas.
         /// </summary>
-        internal protected abstract void DefineInCanvas(Path path, 
-                                                        object canvasDomElement, 
+        internal protected abstract void DefineInCanvas(Path path,
+                                                        INTERNAL_Html2dContextReference ctx, 
                                                         double horizontalMultiplicator, 
                                                         double verticalMultiplicator, 
                                                         double xOffsetToApplyBeforeMultiplication, 

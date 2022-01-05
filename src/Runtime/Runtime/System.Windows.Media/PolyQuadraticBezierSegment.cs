@@ -95,11 +95,10 @@ namespace Windows.UI.Xaml.Media
                                                double xOffsetToApplyAfterMultiplication, 
                                                double yOffsetToApplyAfterMultiplication, 
                                                double horizontalMultiplicator, 
-                                               double verticalMultiplicator, 
-                                               object canvasDomElement, 
+                                               double verticalMultiplicator,
+                                               INTERNAL_Html2dContextReference context,
                                                Point previousLastPoint)
         {
-            var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(canvasDomElement);
             int i = 0;
             Point lastPoint = previousLastPoint;
             while (i < Points.Count - 1)

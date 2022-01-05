@@ -243,8 +243,8 @@ namespace Windows.UI.Xaml.Media
                                                double xOffsetToApplyAfterMultiplication, 
                                                double yOffsetToApplyAfterMultiplication, 
                                                double horizontalMultiplicator, 
-                                               double verticalMultiplicator, 
-                                               object canvasDomElement, 
+                                               double verticalMultiplicator,
+                                               INTERNAL_Html2dContextReference context, 
                                                Point previousLastPoint)
         {
             //HOW IT WORKS IN WINRT:
@@ -278,7 +278,6 @@ namespace Windows.UI.Xaml.Media
             UpdateArcData();
 
 
-            var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(canvasDomElement);
             context.save(); // save state
             context.translate(xOffsetToApplyBeforeMultiplication * horizontalMultiplicator + xOffsetToApplyAfterMultiplication, 
                               yOffsetToApplyBeforeMultiplication * verticalMultiplicator + yOffsetToApplyAfterMultiplication);

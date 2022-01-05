@@ -12,6 +12,7 @@
 *  
 \*====================================================================================*/
 
+using CSHTML5.Internal;
 using System;
 using System.Windows.Markup;
 
@@ -34,8 +35,8 @@ namespace Windows.UI.Xaml.Media
     public sealed partial class GeometryGroup : Geometry
     {
         internal protected override void DefineInCanvas(
-            Path path, 
-            object canvasDomElement, 
+            Path path,
+            INTERNAL_Html2dContextReference ctx, 
             double horizontalMultiplicator, 
             double verticalMultiplicator, 
             double xOffsetToApplyBeforeMultiplication, 
@@ -51,7 +52,7 @@ namespace Windows.UI.Xaml.Media
                 {
                     child.DefineInCanvas(
                         path, 
-                        canvasDomElement, 
+                        ctx, 
                         horizontalMultiplicator, 
                         verticalMultiplicator, 
                         xOffsetToApplyBeforeMultiplication, 
