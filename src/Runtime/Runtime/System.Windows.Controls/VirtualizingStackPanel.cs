@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Specialized;
 using CSHTML5.Internals.Controls;
+using System.Windows.Input;
 
 #if MIGRATION
 using System.Windows.Controls.Primitives;
@@ -921,5 +922,24 @@ namespace Windows.UI.Xaml.Controls
                 ScrollOwner.InvalidateScrollInfo();
         }
         #endregion "IScrollInfo"
+
+#if MIGRATION
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            if (!e.Handled)
+            {
+                if (e.Delta < 0)
+                {
+                    MouseWheelDown();
+                }
+                else if (e.Delta > 0)
+                {
+                    MouseWheelUp();
+                }
+                e.Handled = true;
+            }
+        }
+#endif
     }
 }
