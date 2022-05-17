@@ -59,6 +59,9 @@ namespace Windows.UI.Xaml.Shapes
         {
             base.INTERNAL_OnAttachedToVisualTree();
 
+            if (Fill != null)
+                OnFillChanged();
+
             if (!string.IsNullOrEmpty(Data))
                 OnDataChanged();
         }
