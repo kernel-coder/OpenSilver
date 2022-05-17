@@ -14,7 +14,7 @@
 		<OutputPath>bin\OpenSilver\$(Configuration)\</OutputPath>
 		<NoWarn>1591</NoWarn>
 		<DebugType>full</DebugType>
-		<Optimize>true</Optimize>
+		<Optimize>False</Optimize>
 		<NoCSHTML5Reference>true</NoCSHTML5Reference>
 		<EnableDefaultItems>false</EnableDefaultItems>
 		<!-- This emluates the behavior of NET Framework, which excludes every files by default -->
@@ -162,6 +162,7 @@
 		<Compile Include="System.Windows.Printing\EndPrintEventArgs.cs" />
 		<Compile Include="System.Windows.Printing\PrintDocument.cs" />
 		<Compile Include="System.Windows.Printing\PrintPageEventArgs.cs" />
+		<Compile Include="System.Windows.Shapes\SvgPath.cs" />
 		<Compile Include="System.Windows\CornerRadiusConverter.cs" />
 		<Compile Include="System.Windows.input\CursorConverter.cs" />
 		<Compile Include="System.Windows.Media\DoubleCollectionConverter.cs" />
