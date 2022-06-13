@@ -95,7 +95,7 @@ namespace Windows.UI.Xaml.Controls
             DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         /// <summary>
