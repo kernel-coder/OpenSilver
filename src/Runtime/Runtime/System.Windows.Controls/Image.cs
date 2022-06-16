@@ -538,6 +538,15 @@ $0.style.objectPosition = $2", image._imageDiv, objectFitvalue, objectPosition);
             style.height = "0"; // Same as above.
             style.objectPosition = "center top";
 
+            if (this.MaxHeight > 0)
+            {
+                style.maxHeight = this.MaxHeight.ToString() + "px";
+            }
+            if (this.MaxWidth > 0)
+            {
+                style.maxWidth = this.MaxWidth.ToString() + "px";
+            }
+
             CSHTML5.Interop.ExecuteJavaScriptAsync(@"
 $0.addEventListener('mousedown', function(e) {
     e.preventDefault();
