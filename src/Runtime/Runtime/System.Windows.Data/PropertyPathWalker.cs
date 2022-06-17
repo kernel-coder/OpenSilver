@@ -28,7 +28,7 @@ namespace Windows.UI.Xaml.Data
     internal class PropertyPathWalker
     {
         private readonly string _path;
-        private readonly PropertyPathNode _firstNode;
+        internal readonly PropertyPathNode _firstNode;
         private readonly BindingExpression _expr;
         private object _source;
 
