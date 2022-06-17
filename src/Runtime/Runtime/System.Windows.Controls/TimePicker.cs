@@ -829,7 +829,15 @@ namespace Windows.UI.Xaml.Controls
         /// <param name="e">The instance containing the event data.</param>
         private void TimeUpDownValueChanged(object sender, RoutedPropertyChangedEventArgs<DateTime?> e)
         {
-            this.Value = e.NewValue;
+            // Try/Catch temporary to avoid stopping from moving next
+            try
+            {
+                this.Value = e.NewValue;
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine($"Exception: TimePicker.TimeUpDownValueChanged, Msg={exc.Message}");
+            }
         }
 
         /// <summary>Raised when TimeUpDown raises this event.</summary>
@@ -923,7 +931,15 @@ namespace Windows.UI.Xaml.Controls
         /// <param name="e">The  instance containing the event data.</param>
         private void PopupValueChanged(object sender, RoutedPropertyChangedEventArgs<DateTime?> e)
         {
-            this.Value = e.NewValue;
+            // Try/Catch temporary to avoid stopping from moving next
+            try
+            {
+                this.Value = e.NewValue;
+            }
+            catch(Exception exc)
+            {
+                Console.WriteLine($"Exception: TimePicker.PopupValueChanged, Msg={exc.Message}");
+            }
         }
 
         /// <summary>The Popup has been committed. Will close the popup.</summary>
@@ -943,7 +959,15 @@ namespace Windows.UI.Xaml.Controls
         private void PopupCanceled(object sender, RoutedEventArgs e)
         {
             this.IsDropDownOpen = false;
-            this.Value = this._popupSessionValueCache;
+            // Try/Catch temporary to avoid stopping from moving next
+            try
+            {
+                this.Value = this._popupSessionValueCache;
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine($"Exception: TimePicker.TimeUpDownValueChanged, Msg={exc.Message}");
+            }            
         }
 
         /// <summary>Called when a new Popup is set.</summary>
