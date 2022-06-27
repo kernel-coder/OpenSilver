@@ -19,6 +19,8 @@ namespace System.Windows.Controls
             Loaded += InkPresenter_Loaded;
         }
 
+
+        internal override object INTENRAL_CanvasDom { get { return _canvasDom; } }
         private void InkPresenter_Loaded(object sender, RoutedEventArgs e)
         {
             ResetCanvas();
