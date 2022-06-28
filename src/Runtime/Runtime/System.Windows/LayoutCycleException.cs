@@ -1,5 +1,4 @@
 ﻿
-
 /*===================================================================================
 * 
 *   Copyright (c) Userware/OpenSilver.net
@@ -12,22 +11,20 @@
 *  
 \*====================================================================================*/
 
-
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 #if MIGRATION
-namespace System.Windows.Data
+namespace System.Windows
 #else
-namespace Windows.UI.Xaml.Data
+namespace Windows.UI.Xaml
 #endif
 {
-    internal partial interface IDependencyPropertyChangedEventArgs
+    /// <summary>
+    /// An exception that is thrown by the layout cycle.
+    /// </summary>
+    [OpenSilver.NotImplemented]
+    public class LayoutCycleException : Exception
     {
-        DependencyProperty Property {get; }
-        object OldValue { get; }
-        object NewValue { get; }
+        internal LayoutCycleException() { }
     }
 }

@@ -13,18 +13,20 @@
 
 using System;
 
-#if MIGRATION
-namespace System.Windows.Data
-#else
-namespace Windows.UI.Xaml.Data
-#endif
+namespace OpenSilver.Internal.Data
 {
-    internal partial interface IPropertyChangedListener
+    internal interface IPropertyPathNode
     {
-        DependencyProperty Property { get; set; }
+        object Value { get; }
 
-        void OnPropertyChanged(DependencyObject sender, IDependencyPropertyChangedEventArgs args);
-        
-        void Detach();
+        object Source { get; set; }
+
+        bool IsBroken { get; }
+
+        Type Type { get; }
+
+        IPropertyPathNode Next { get; set; }
+
+        void SetValue(object value);
     }
 }
