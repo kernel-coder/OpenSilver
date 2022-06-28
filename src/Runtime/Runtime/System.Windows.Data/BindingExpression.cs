@@ -15,7 +15,6 @@ using System;
 using System.Diagnostics;
 using CSHTML5.Internal;
 using OpenSilver.Internal.Data;
-using System.ComponentModel;
 
 #if MIGRATION
 using System.Windows.Controls;
@@ -120,7 +119,7 @@ namespace Windows.UI.Xaml.Data
 
             // found this info at: https://msdn.microsoft.com/fr-fr/library/windows/apps/windows.ui.xaml.data.bindingexpression.updatesource.aspx
             // in the remark.
-            if (!IsUpdating && ParentBinding.Mode == BindingMode.TwoWay)
+            if (!IsUpdating && ParentBinding.Mode == BindingMode.TwoWay) 
             {
                 UpdateSourceObject(Target.GetValue(TargetProperty));
             }
@@ -218,7 +217,7 @@ namespace Windows.UI.Xaml.Data
             Target = d;
 
             _isUpdateOnLostFocus = ParentBinding.UpdateSourceTrigger == UpdateSourceTrigger.Default &&
-                (d is TextBox && dp == TextBox.TextProperty ||
+                (d is TextBox && dp == TextBox.TextProperty || 
                  d is PasswordBox && dp == PasswordBox.PasswordProperty);
             if (_isUpdateOnLostFocus)
             {
@@ -395,7 +394,7 @@ namespace Windows.UI.Xaml.Data
             {
                 return !type.IsValueType || (type.IsGenericType && type.GetGenericTypeDefinition() == NullableType);
             }
-
+            
             return type.IsAssignableFrom(value.GetType());
         }
 
@@ -435,7 +434,7 @@ namespace Windows.UI.Xaml.Data
 #endif
 
                     if (convertedValue == DependencyProperty.UnsetValue)
-                        return;
+                        return;                    
                 }
 
                 node.SetValue(convertedValue);
@@ -460,28 +459,6 @@ namespace Windows.UI.Xaml.Data
             finally
             {
                 IsUpdating = oldIsUpdating;
-            }
-
-            
-            if (ParentBinding.ValidatesOnNotifyDataErrors)
-            {
-                PropertyPathNode parentNode = null;
-                var currentNode = _propertyPathWalker._firstNode;
-                while (currentNode != node)
-                {
-                    parentNode = currentNode;
-                    currentNode = currentNode.Next;
-                }
-
-                if (parentNode.Value is INotifyDataErrorInfo notifyDataErrorInfo 
-                    && notifyDataErrorInfo.HasErrors
-                    && node is StandardPropertyPathNode propertyNode)
-                {
-                    foreach (var error in notifyDataErrorInfo.GetErrors(propertyNode._propertyName))
-                    {
-                        Validation.MarkInvalid(this, new ValidationError(this) { ErrorContent = error.ToString() });
-                    }
-                }
             }
         }
 
@@ -519,7 +496,7 @@ namespace Windows.UI.Xaml.Data
 
                 return _dynamicConverter;
             }
-        }
+        } 
 
         private object ConvertValueImplicitly(object value, Type targetType)
         {
@@ -585,7 +562,7 @@ namespace Windows.UI.Xaml.Data
             {
                 value = ConvertValueImplicitly(ParentBinding.FallbackValue, TargetProperty.PropertyType);
             }
-
+            
             if (value == DependencyProperty.UnsetValue)
             {
                 value = GetDefaultValue();
