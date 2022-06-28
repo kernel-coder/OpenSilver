@@ -27,7 +27,7 @@ namespace Windows.UI.Xaml.Data
     internal class StandardPropertyPathNode : PropertyPathNode
     {
         private readonly Type _resolvedType;
-        internal readonly string _propertyName;
+        private readonly string _propertyName;
         private readonly bool _bindsDirectlyToSource;
 
         private IPropertyChangedListener _dpListener;
