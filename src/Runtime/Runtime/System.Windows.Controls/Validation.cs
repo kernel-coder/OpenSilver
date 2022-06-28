@@ -283,6 +283,7 @@ namespace Windows.UI.Xaml.Controls
 
         private static void RefreshPopup(UIElement target, ObservableCollection<ValidationError> errors)
         {
+            return;
             Popup popup = target.INTERNAL_ValidationErrorPopup;
             if (errors.Count == 0)
             {
