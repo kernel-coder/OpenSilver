@@ -266,7 +266,6 @@ namespace Windows.UI.Xaml.Controls.Primitives
 #else
             base.OnPointerPressed(eventArgs);
 #endif
-            eventArgs.Handled = true;
 
 #if MIGRATION
             this.CaptureMouse();
@@ -302,7 +301,6 @@ namespace Windows.UI.Xaml.Controls.Primitives
 #else
                 base.OnPointerReleased(eventArgs);
 #endif
-                eventArgs.Handled = true;
 
                 StopPointerCapture();
 
