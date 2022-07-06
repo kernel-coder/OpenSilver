@@ -6,22 +6,12 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-#if MIGRATION
 using System.Windows.Media;
 using System.Windows.Shapes;
-#else
-using Windows.Foundation;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
-#endif
 
 #if !DEFINITION_SERIES_COMPATIBILITY_MODE
 
-#if MIGRATION
 namespace System.Windows.Controls.DataVisualization.Charting
-#else
-namespace Windows.UI.Xaml.Controls.DataVisualization.Charting
-#endif
 {
     /// <summary>
     /// Represents a control that contains a data series to be rendered in X/Y 
@@ -33,7 +23,6 @@ namespace Windows.UI.Xaml.Controls.DataVisualization.Charting
     [StyleTypedProperty(Property = "PolylineStyle", StyleTargetType = typeof(Polyline))]
     [TemplatePart(Name = DataPointSeries.PlotAreaName, Type = typeof(Canvas))]
     [SuppressMessage("Microsoft.Maintainability", "CA1501:AvoidExcessiveInheritance", Justification = "Depth of hierarchy is necessary to avoid code duplication.")]
-    [OpenSilver.NotImplemented]
     public partial class LineSeries : LineAreaBaseSeries<LineDataPoint>
     {
         #region public PointCollection Points
@@ -62,7 +51,7 @@ namespace Windows.UI.Xaml.Controls.DataVisualization.Charting
         /// Gets or sets the style of the Polyline object that follows the data 
         /// points.
         /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Polyline", Justification = "Matches System.Windows.Shapes.Polyline.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Polyline", Justification = "Matches System.Windows.Shapes.Polyline.")]
         public Style PolylineStyle
         {
             get { return GetValue(PolylineStyleProperty) as Style; }
@@ -72,7 +61,7 @@ namespace Windows.UI.Xaml.Controls.DataVisualization.Charting
         /// <summary>
         /// Identifies the PolylineStyle dependency property.
         /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Polyline", Justification = "Matches System.Windows.Shapes.Polyline.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Polyline", Justification = "Matches System.Windows.Shapes.Polyline.")]
         public static readonly DependencyProperty PolylineStyleProperty =
             DependencyProperty.Register(
                 "PolylineStyle",
@@ -106,9 +95,33 @@ namespace Windows.UI.Xaml.Controls.DataVisualization.Charting
         /// Acquire a horizontal linear axis and a vertical linear axis.
         /// </summary>
         /// <param name="firstDataPoint">The first data point.</param>
-        [OpenSilver.NotImplemented]
         protected override void GetAxes(DataPoint firstDataPoint)
         {
+            GetAxes(
+                firstDataPoint,
+                (axis) => axis.Orientation == AxisOrientation.X,
+                () =>
+                {
+                    IAxis axis = CreateRangeAxisFromData(firstDataPoint.IndependentValue);
+                    if (axis == null)
+                    {
+                        axis = new CategoryAxis();
+                    }
+                    axis.Orientation = AxisOrientation.X;
+                    return axis;
+                },
+                (axis) => axis.Orientation == AxisOrientation.Y && axis is IRangeAxis,
+                () =>
+                {
+                    DisplayAxis axis = (DisplayAxis)CreateRangeAxisFromData(firstDataPoint.DependentValue);
+                    if (axis == null)
+                    {
+                        throw new InvalidOperationException(OpenSilver.Controls.DataVisualization.Properties.Resources.DataPointSeriesWithAxes_NoSuitableAxisAvailableForPlottingDependentValue);
+                    }
+                    axis.ShowGridLines = true;
+                    axis.Orientation = AxisOrientation.Y;
+                    return axis;
+                });
         }
 
         /// <summary>
