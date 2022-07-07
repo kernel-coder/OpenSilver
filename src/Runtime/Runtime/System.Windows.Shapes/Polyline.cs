@@ -176,13 +176,6 @@ namespace Windows.UI.Xaml.Shapes
                 ApplyMarginToFixNegativeCoordinates(_marginOffsets);
             }
 
-
-            // FIX ME: This is for now for Polyline to draw in LineSeries
-            if (Stroke == null)
-            {
-                Stroke = new SolidColorBrush(Colors.Black);
-            }
-
             INTERNAL_ShapesDrawHelpers.PrepareLines(_canvasDomElement, Points, StrokeThickness, false);
             //todo: make sure the parameters below are correct.
             Shape.DrawFillAndStroke(this, FillRule == FillRule.Nonzero ? "nonzero" : "evenodd", xOffsetToApplyAfterMultiplication,
