@@ -66,10 +66,10 @@ resizeObserverScript.setAttribute('type', 'application/javascript');
 resizeObserverScript.setAttribute('src', 'libs/ResizeObserver.js');
 document.getElementsByTagName('head')[0].appendChild(resizeObserverScript);
 
-//new Element("script", { src: "html2canvas.min.js", type: "application/javascript" });
+//new Element("script", { src: "html2canvas.js", type: "application/javascript" });
 var html2CanvasScript = document.createElement('script');
 html2CanvasScript.setAttribute('type', 'application/javascript');
-html2CanvasScript.setAttribute('src', 'libs/html2canvas.min.js');
+html2CanvasScript.setAttribute('src', 'libs/html2canvas.js');
 document.getElementsByTagName('head')[0].appendChild(html2CanvasScript);
 
 
