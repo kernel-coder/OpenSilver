@@ -1,0 +1,159 @@
+﻿<Project>
+
+	<Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<EnableDefaultItems>false</EnableDefaultItems>
+		<AssemblyName>OpenSilver.Controls.Toolkit</AssemblyName>
+		<RootNamespace>System.Windows.Controls</RootNamespace>
+		<Configurations>SL;UWP</Configurations>
+		<IntermediateOutputPath>obj\OpenSilver\$(Configuration)\</IntermediateOutputPath>
+		<OutputPath>bin\OpenSilver\$(Configuration)\</OutputPath>
+		<OpenSilverVersion>1.0.0</OpenSilverVersion>
+		<Optimize>true</Optimize>
+		<DefineTrace>true</DefineTrace>
+		<DefineConstants>$(DefineConstants);SILVERLIGHT</DefineConstants>
+		<DefineConstants Condition="$(Optimize) != true">$(DefineConstants);DEBUG</DefineConstants>
+		<DefineConstants Condition=" '$(Configuration)' == 'SL' ">$(DefineConstants);MIGRATION</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="..\Runtime\System.Windows.Controls\InteractionHelper.cs" Link="Common\InteractionHelper.cs" />
+		<Compile Include="..\Runtime\System.Windows.Controls\IUpdateVisualState.cs" Link="Common\IUpdateVisualState.cs" />
+		<Compile Include="..\Runtime\System.Windows.Controls\ItemsControlHelper.cs" Link="Common\ItemsControlHelper.cs" />
+		<Compile Include="..\Runtime\System.Windows.Controls\VisualStates.cs" Link="Common\VisualStates.cs" />
+	  <Compile Include="BusyIndicator\BusyIndicator.cs" />
+	  <Compile Include="Common\BindingSourceEvaluator.cs" />
+	  <Compile Include="Common\CollectionHelper.cs" />
+	  <Compile Include="Common\DesignerProperties.cs" />
+	  <Compile Include="Common\EnumerableExtensions.cs" />
+	  <Compile Include="Common\ItemsControlExtensions.cs" />
+	  <Compile Include="Common\LengthConverter.cs" />
+	  <Compile Include="Common\ObjectCollection.cs" />
+	  <Compile Include="Common\ObservableExtensions.cs" />
+	  <Compile Include="Common\ScrollViewerExtensions.cs" />
+	  <Compile Include="Common\VisualTreeExtensions.cs" />
+	  <Compile Include="Common\WeakEventListener.cs" />
+	  <Compile Include="DockPanel\DockPanel.cs" />
+	  <Compile Include="DragDrop\CardPanel.cs" />
+	  <Compile Include="DragDrop\DataObject.cs" />
+	  <Compile Include="DragDrop\DependencyObjectExtensions.cs" />
+	  <Compile Include="DragDrop\DragAction.cs" />
+	  <Compile Include="DragDrop\DragDecorator.cs" />
+	  <Compile Include="DragDrop\DragDrop.cs" />
+	  <Compile Include="DragDrop\DragDropCompletedEventArgs.cs" />
+	  <Compile Include="DragDrop\DragDropEffects.cs" />
+	  <Compile Include="DragDrop\DragDropKeyStates.cs" />
+	  <Compile Include="DragDrop\DragDropTarget.cs" />
+	  <Compile Include="DragDrop\DragEventArgs.cs" />
+	  <Compile Include="DragDrop\DragEventHandler.cs" />
+	  <Compile Include="DragDrop\DragOperation.cs" />
+	  <Compile Include="DragDrop\ExtendedRoutedEvent.cs" />
+	  <Compile Include="DragDrop\ExtendedRoutedEventArgs.cs" />
+	  <Compile Include="DragDrop\ExtendedRoutedEventHandlersCollection.cs" />
+	  <Compile Include="DragDrop\FunctionalProgramming.cs" />
+	  <Compile Include="DragDrop\GiveFeedbackEventArgs.cs" />
+	  <Compile Include="DragDrop\GiveFeedbackEventHandler.cs" />
+	  <Compile Include="DragDrop\IAcceptDrop.cs" />
+	  <Compile Include="DragDrop\IDataObject.cs" />
+	  <Compile Include="DragDrop\IDataObjectExtensions.cs" />
+	  <Compile Include="DragDrop\IndicatingInsertionLocationEventArgs.cs" />
+	  <Compile Include="DragDrop\ItemDragEventArgs.cs" />
+	  <Compile Include="DragDrop\ItemsControlDragDropTarget.cs" />
+	  <Compile Include="DragDrop\ListBoxDragDropTarget.cs" />
+	  <Compile Include="DragDrop\MouseEventArgsExtensions.cs" />
+	  <Compile Include="DragDrop\PanelDragDropTarget.cs" />
+	  <Compile Include="DragDrop\QueryContinueDragEventArgs.cs" />
+	  <Compile Include="DragDrop\QueryContinueDragEventHandler.cs" />
+	  <Compile Include="DragDrop\Selection.cs" />
+	  <Compile Include="DragDrop\SelectionCollection.cs" />
+	  <Compile Include="DragDrop\SystemParameters.cs" />
+	  <Compile Include="DragDrop\TreeViewDragDropTarget.cs" />
+	  <Compile Include="DragDrop\UIElementExtendedRoutedEventExtensions.cs" />
+	  <Compile Include="DragDrop\UIElementExtensions.cs" />
+	  <Compile Include="Expander\ExpandDirection.cs" />
+	  <Compile Include="Expander\Expander.cs" />
+	  <Compile Include="Expander\ExpanderAutomationPeer.cs" />
+	  <Compile Include="GlobalCalendar\CalendarDayButtonStyleSelector.cs" />
+	  <Compile Include="GlobalCalendar\CalendarExtensions.cs" />
+	  <Compile Include="GlobalCalendar\CalendarInfo\CalendarInfo.cs" />
+	  <Compile Include="GlobalCalendar\CalendarInfo\CultureCalendarInfo.cs" />
+	  <Compile Include="GlobalCalendar\CalendarInfo\GregorianCalendarInfo.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendar.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendarAutomationPeer.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendarBlackoutDatesCollection.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendarButton.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendarButtonAutomationPeer.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendarDateChangedEventArgs.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendarDayButton.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendarDayButtonAutomationPeer.cs" />
+	  <Compile Include="GlobalCalendar\GlobalCalendarItem.cs" />
+	  <Compile Include="GlobalCalendar\GlobalSelectedDatesCollection.cs" />
+	  <Compile Include="GlobalSuppressions.cs" />
+	  <Compile Include="HeaderedContentControl\HeaderedContentControl.cs" />
+	  <Compile Include="Properties\AssemblyInfo.cs" />
+	  <Compile Include="Properties\Resources.Designer.cs" />
+	  <Compile Include="TreeView\TreeViewConnectingLines.cs" />
+	  <Compile Include="TreeView\TreeViewExtensions.cs" />
+	  <Compile Include="TreeView\TreeViewItemCheckBox.cs" />
+	  <Compile Include="TreeView\TreeViewItemConnectingLineInfo.cs" />
+	  <Compile Include="TreeView\TreeViewItemIndentationConverter.cs" />
+	  <Compile Include="WrapPanel\OrientedSize.cs" />
+	  <Compile Include="WrapPanel\WrapPanel.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Properties\Resources.resx" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Include="BusyIndicator\BusyIndicator.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="DragDrop\DragDecorator.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="DragDrop\ListBoxDragDropTarget.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="DragDrop\PanelDragDropTarget.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="DragDrop\TreeViewDragDropTarget.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="Expander\Expander.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="GlobalCalendar\GlobalCalendar.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="GlobalCalendar\GlobalCalendarButton.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="GlobalCalendar\GlobalCalendarDayButton.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="GlobalCalendar\GlobalCalendarItem.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="HeaderedContentControl\HeaderedContentControl.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	  <Page Include="Themes\generic.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Runtime\Runtime.OpenSilver.csproj" />
+	</ItemGroup>
+
+
+	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+	<Import Project="..\..\packages\OpenSilver.$(OpenSilverVersion)\build\OpenSilver.targets" Condition=" '$(Configuration)' == 'SL' " />
+	<Import Project="..\..\packages\OpenSilver.UWPCompatible.$(OpenSilverVersion)\build\OpenSilver.UwpCompatible.targets" Condition=" '$(Configuration)' == 'UWP' " />
+
+</Project>

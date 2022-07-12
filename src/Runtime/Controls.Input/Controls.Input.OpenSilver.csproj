@@ -23,44 +23,15 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Compile Include="..\Runtime\System.Windows.Controls\InteractionHelper.cs" Link="Common\InteractionHelper.cs" />
+	<Compile Include="..\Runtime\System.Windows.Controls\IUpdateVisualState.cs" Link="Common\IUpdateVisualState.cs" />
+	<Compile Include="..\Runtime\System.Windows.Controls\ItemsControlHelper.cs" Link="Common\ItemsControlHelper.cs" />
+	<Compile Include="..\Runtime\System.Windows.Controls\VisualStates.cs" Link="Common\VisualStates.cs" />
+	  
     <Compile Include="AutoCompleteBox\PopupHelper.cs" />
     <Compile Include="Common\DesignerProperties.cs" />
-    <Compile Include="Common\WeakEventListener.cs" />
-    <!--
-    <Compile Include="..\Controls\Common\BindingEvaluator.cs">
-      <Link>Common\BindingEvaluator.cs</Link>
-    </Compile>
-    -->
+    <Compile Include="Common\WeakEventListener.cs" />	  
     <Compile Include="Common\BindingEvaluator.cs" />
-    <!--
-    <Compile Include="..\Controls\Common\InteractionHelper.cs">
-      <Link>Common\InteractionHelper.cs</Link>
-    </Compile>
-    -->
-    <Compile Include="..\Runtime\System.Windows.Controls\InteractionHelper.cs">
-      <Link>Common\InteractionHelper.cs</Link>
-    </Compile>
-    <!--
-    <Compile Include="..\Controls\Common\IUpdateVisualState.cs">
-      <Link>Common\IUpdateVisualState.cs</Link>
-    </Compile>
-    -->
-    <Compile Include="..\Runtime\System.Windows.Controls\IUpdateVisualState.cs">
-      <Link>Common\IUpdateVisualState.cs</Link>
-    </Compile>
-    <!--
-    <Compile Include="..\Controls\Common\ScrollExtensions.cs">
-      <Link>Common\ScrollExtensions.cs</Link>
-    </Compile>
-    -->
-    <!--
-    <Compile Include="..\Controls\Common\VisualStates.cs">
-      <Link>Common\VisualStates.cs</Link>
-    </Compile>
-    -->
-    <Compile Include="..\Runtime\System.Windows.Controls\VisualStates.cs">
-      <Link>Common\VisualStates.cs</Link>
-    </Compile>
     <Compile Include="AutoCompleteBox\AutoCompleteBox.cs" />
     <Compile Include="AutoCompleteBox\AutoCompleteBoxAutomationPeer.cs" />
     <Compile Include="AutoCompleteBox\AutoCompleteFilter.cs" />
