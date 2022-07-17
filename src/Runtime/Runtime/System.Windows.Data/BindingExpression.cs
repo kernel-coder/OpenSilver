@@ -517,12 +517,30 @@ namespace Windows.UI.Xaml.Data
                     notifyDataErrorInfo = parentNode.Value as INotifyDataErrorInfo;
                 }                
 
-                if (notifyDataErrorInfo?.HasErrors == true && _propertyPathWalker.FinalNode is StandardPropertyPathNode propertyNode)
+                if (notifyDataErrorInfo != null)
                 {
-                    foreach (var error in notifyDataErrorInfo.GetErrors(propertyNode._propertyName))
+                    notifyDataErrorInfo.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
+                    if (notifyDataErrorInfo.HasErrors == true && _propertyPathWalker.FinalNode is StandardPropertyPathNode propertyNode)
                     {
-                        Validation.MarkInvalid(this, new ValidationError(this) { ErrorContent = error.ToString() });
+                        foreach (var error in notifyDataErrorInfo.GetErrors(propertyNode._propertyName))
+                        {
+                            Validation.MarkInvalid(this, new ValidationError(this) { ErrorContent = error.ToString() });
+                        }
                     }
+                    notifyDataErrorInfo.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
+                }
+            }
+        }
+
+        private void NotifyDataErrorInfo_ErrorsChanged(object sender, DataErrorsChangedEventArgs e)
+        {
+            Validation.ClearInvalid(this);
+            var notifyDataErrorInfo = sender as INotifyDataErrorInfo;
+            if (notifyDataErrorInfo != null && notifyDataErrorInfo.HasErrors == true && _propertyPathWalker.FinalNode is StandardPropertyPathNode propertyNode)
+            {
+                foreach (var error in notifyDataErrorInfo.GetErrors(propertyNode._propertyName))
+                {
+                    Validation.MarkInvalid(this, new ValidationError(this) { ErrorContent = error.ToString() });
                 }
             }
         }
