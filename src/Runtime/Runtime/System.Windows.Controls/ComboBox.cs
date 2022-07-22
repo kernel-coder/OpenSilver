@@ -163,6 +163,14 @@ namespace Windows.UI.Xaml.Controls
 
             _dropDownToggle = GetTemplateChild("DropDownToggle") as ToggleButton;
             _contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
+            if (_contentPresenter != null)
+            {
+                if (_contentPresenter.HasDefaultValue(IsHitTestVisibleProperty))
+                {
+                    _contentPresenter.IsHitTestVisible = false;
+                }
+            }
+
             //todo: once we will have made the following properties (PlacementTarget and Placement) Dependencyproperties, unset it here and set it in the default style.
             _popup.PlacementTarget = _dropDownToggle;
             _popup.Placement = PlacementMode.Bottom;
@@ -304,16 +312,6 @@ namespace Windows.UI.Xaml.Controls
                     //-----------------------------
                     // Show the Popup
                     //-----------------------------
-
-                    // Empty the ContentPresenter so that, in case it is needed, the same item can be placed in the popup:
-                    if (comboBox._contentPresenter != null)
-                    {
-                        comboBox._contentPresenter.Content = null;
-                        comboBox.SelectionBoxItem = null;
-                        comboBox.SelectionBoxItemTemplate = null;
-                    }
-
-                    // Show the popup:
                     if (comboBox._popup != null)
                     {
                         // add removed 

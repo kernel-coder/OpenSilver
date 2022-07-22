@@ -78,12 +78,11 @@ namespace Windows.UI.Xaml.Data
             _propertyPathWalker = new PropertyPathWalker(this);
         }
 
+        
         private void OnDataContextChanged(object sender, IDependencyPropertyChangedEventArgs args)
         {
             BindingSource = args.NewValue;
-
             _propertyPathWalker.Update(BindingSource);
-            BindToNotifyDataErrorInfo(true);
         }
 
         /// <summary>
@@ -233,8 +232,7 @@ namespace Windows.UI.Xaml.Data
             // FindSource should find the source now. Otherwise, the PropertyPathNodes
             // shoud do the work (their properties will change when the source will
             // become available)
-            _propertyPathWalker.Update(BindingSource);
-            BindToNotifyDataErrorInfo(true);
+            _propertyPathWalker.Update(BindingSource);         
 
             //Listen to changes on the Target if the Binding is TwoWay:
             if (ParentBinding.Mode == BindingMode.TwoWay)
@@ -256,8 +254,6 @@ namespace Windows.UI.Xaml.Data
         {
             if (!IsAttached)
                 return;
-
-            BindToNotifyDataErrorInfo(false);
 
             IsAttached = false;
 
@@ -326,12 +322,17 @@ namespace Windows.UI.Xaml.Data
             }
         }
 
+        private static void LogMessage(string msg)
+        {
+            return;
+            System.Console.WriteLine(msg);
+            System.Diagnostics.Debug.WriteLine(msg);
+        }
+
         private void OnCollectionViewSourceViewChanged(object sender, IDependencyPropertyChangedEventArgs args)
         {
             _bindingSource = args.NewValue;
-
             _propertyPathWalker.Update(BindingSource);
-            BindToNotifyDataErrorInfo(true);
         }
 
         /// <summary>
@@ -363,75 +364,8 @@ namespace Windows.UI.Xaml.Data
                             while (currentException.InnerException != null)
                                 currentException = currentException.InnerException;
                         }
-
+                        LogMessage($"BE IDNEI INVALID (CheckInitialValueValidity-Exc)  {currentException.Message}");
                         Validation.MarkInvalid(this, new ValidationError(this) { Exception = currentException, ErrorContent = currentException.Message });
-                    }
-                }
-            }
-        }
-
-        private bool _isBoundToNotifyError = false;
-        private void BindToNotifyDataErrorInfo(bool attach)
-        {
-            if (ParentBinding.ValidatesOnNotifyDataErrors)
-            {
-                var parentNode = _propertyPathWalker.FinalNode;
-
-                INotifyDataErrorInfo notifyDataErrorInfo1 = null;                
-
-                if (parentNode.Source is INotifyDataErrorInfo)
-                {
-                    notifyDataErrorInfo1 = (INotifyDataErrorInfo)parentNode.Source;
-                }
-
-                if (notifyDataErrorInfo1 != null)
-                {
-                    notifyDataErrorInfo1.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
-                    _isBoundToNotifyError = false;
-                    if (attach)
-                    {
-                        _isBoundToNotifyError = true;
-                        notifyDataErrorInfo1.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
-                    }
-                }
-
-                INotifyDataErrorInfo notifyDataErrorInfo2 = null;
-
-                if (parentNode.Value is INotifyDataErrorInfo)
-                {
-                    notifyDataErrorInfo2 = parentNode.Value as INotifyDataErrorInfo;
-                }
-
-                if (notifyDataErrorInfo2 != null)
-                {
-                    notifyDataErrorInfo2.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
-                    _isBoundToNotifyError = false;
-
-                    if (attach)
-                    {
-                        _isBoundToNotifyError = true;
-                        notifyDataErrorInfo2.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
-                    }
-                }
-            }
-        }
-
-        private void NotifyDataErrorInfo_ErrorsChanged(object sender, DataErrorsChangedEventArgs e)
-        {
-            Validation.ClearInvalid(this);
-
-            var notifyDataErrorInfo = sender as INotifyDataErrorInfo;
-            if (notifyDataErrorInfo != null && notifyDataErrorInfo.HasErrors == true && _propertyPathWalker.FinalNode is StandardPropertyPathNode propertyNode)
-            {
-                var errors = notifyDataErrorInfo.GetErrors(propertyNode._propertyName);
-                if (errors != null)
-                {
-                    foreach (var error in errors)
-                    {
-                        if (error != null)
-                        {
-                            Validation.MarkInvalid(this, new ValidationError(this) { ErrorContent = error.ToString() });
-                        }
                     }
                 }
             }
@@ -443,7 +377,6 @@ namespace Windows.UI.Xaml.Data
             if (BindingSource != null)
             {
                 _propertyPathWalker.Update(BindingSource);
-                BindToNotifyDataErrorInfo(true);
             }
 
             //Target.SetValue(Property, this); // Read note below
@@ -552,8 +485,9 @@ namespace Windows.UI.Xaml.Data
 
                 node.SetValue(convertedValue);
 
-                if (!_isBoundToNotifyError)
+                if (_propertyPathWalker.IsBoundToNotifyError == false)
                 {
+                    LogMessage($"BE IDNEI VALID (UpdateSourceObject - after node.SetValue)");
                     Validation.ClearInvalid(this);
                 }
             }
@@ -569,7 +503,7 @@ namespace Windows.UI.Xaml.Data
                     {
                         currentException = currentException.InnerException;
                     }
-
+                    LogMessage($"BE IDNEI INVALID (UpdateSourceObject-Exc)  {currentException.Message}");
                     Validation.MarkInvalid(this, new ValidationError(this) { Exception = currentException, ErrorContent = currentException.Message });
                 }
             }
