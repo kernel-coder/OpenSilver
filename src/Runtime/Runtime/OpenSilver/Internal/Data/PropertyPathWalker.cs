@@ -130,43 +130,47 @@ namespace OpenSilver.Internal.Data
         internal bool IsBoundToNotifyError { get; private set; } = false;
         private void UpdateNotifyDataErrorInfoBinding(bool attach)
         {
-            if (_parentBinding.ValidatesOnNotifyDataErrors)
+            if (!_parentBinding.ValidatesOnNotifyDataErrors) return;
+
+            if (_expr.Target is TextBox)
             {
-                var parentNode = FinalNode;
+                _expr.LogMessage("This is a text box");
+            }
 
-                if (parentNode != null && parentNode.Source != null && parentNode.Source is INotifyDataErrorInfo)
+            if (FinalNode != null && FinalNode.Source != null && FinalNode.Source is INotifyDataErrorInfo)
+            {
+                //LogMessage($"PPW.Source {attach}");
+                INotifyDataErrorInfo notifyDataErrorInfo = FinalNode.Source as INotifyDataErrorInfo;
+
+                if (attach)
                 {
-                    //LogMessage($"PPW.Source {attach}");
-                    INotifyDataErrorInfo notifyDataErrorInfo = parentNode.Source as INotifyDataErrorInfo;
-                    
-                    if (attach)
-                    {
-                        IsBoundToNotifyError = true;
-                        notifyDataErrorInfo.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
-                    }
-                    else
-                    {
-                        IsBoundToNotifyError = false;
-                        notifyDataErrorInfo.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
-                    }
+                    _expr.LogMessage("PPW IDNEI Binding to last node source");
+                    IsBoundToNotifyError = true;
+                    notifyDataErrorInfo.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
                 }
-
-                if (parentNode != null && parentNode.Value != null && parentNode.Value is INotifyDataErrorInfo)
+                else
                 {
-                    //LogMessage($"PPW.Value {attach}");
+                    IsBoundToNotifyError = false;
+                    notifyDataErrorInfo.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
+                }
+            }
 
-                    INotifyDataErrorInfo notifyDataErrorInfo = parentNode.Value as INotifyDataErrorInfo;                    
+            if (FinalNode != null && FinalNode.Value != null && FinalNode.Value is INotifyDataErrorInfo)
+            {
+                //LogMessage($"PPW.Value {attach}");
 
-                    if (attach)
-                    {
-                        IsBoundToNotifyError = true;
-                        notifyDataErrorInfo.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
-                    }
-                    else
-                    {
-                        IsBoundToNotifyError = false;
-                        notifyDataErrorInfo.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
-                    }
+                INotifyDataErrorInfo notifyDataErrorInfo = FinalNode.Value as INotifyDataErrorInfo;
+
+                if (attach)
+                {
+                    _expr.LogMessage("PPW IDNEI Binding to last node value");
+                    IsBoundToNotifyError = true;
+                    notifyDataErrorInfo.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
+                }
+                else
+                {
+                    IsBoundToNotifyError = false;
+                    notifyDataErrorInfo.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
                 }
             }
         }
@@ -192,6 +196,11 @@ namespace OpenSilver.Internal.Data
                                 }
                             }
                         }
+                    }
+                    else
+                    {
+                        LogMessage($"PPW IDNEI VALID");
+                        Validation.ClearInvalid(_expr);
                     }
                 }                
             }
