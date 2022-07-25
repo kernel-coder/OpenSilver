@@ -70,12 +70,15 @@ namespace Windows.UI.Xaml.Data
             Target = target;
         }
 
+        private static int ID_COUNTER = 0;
+        internal string ID { get; }
         internal BindingExpression(Binding binding, DependencyProperty property)
         {
             ParentBinding = binding;
             TargetProperty = property;
 
             _propertyPathWalker = new PropertyPathWalker(this);
+            ID = (ID_COUNTER++).ToString();
         }
 
         
@@ -322,11 +325,11 @@ namespace Windows.UI.Xaml.Data
             }
         }
 
-        private static void LogMessage(string msg)
+        internal void LogMessage(string msg)
         {
             //return;
-            System.Console.WriteLine(msg);
-            System.Diagnostics.Debug.WriteLine(msg);
+            System.Console.WriteLine(ID + '-' +  msg);
+            System.Diagnostics.Debug.WriteLine(ID + '-' + msg);
         }
 
         private void OnCollectionViewSourceViewChanged(object sender, IDependencyPropertyChangedEventArgs args)

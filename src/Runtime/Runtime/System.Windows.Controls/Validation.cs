@@ -152,9 +152,10 @@ namespace Windows.UI.Xaml.Controls
                 throw new ArgumentNullException("bindingExpression");
             }
 
-            UIElement target = bindingExpression.Target as UIElement;
+            UIElement target = bindingExpression.Target as UIElement;            
             if (target != null)
             {
+                bindingExpression.LogMessage($"V ClearInvalid, target is {bindingExpression.Target.GetType().ToString()}");
                 if (target.INTERNAL_ValidationErrorsDictionary != null &&
                     target.INTERNAL_ValidationErrorsDictionary.ContainsKey(bindingExpression))
                 {
@@ -170,11 +171,14 @@ namespace Windows.UI.Xaml.Controls
                         target.SetValue(Validation.HasErrorProperty, false);
                     }
 
+                    bindingExpression.LogMessage($"V ClearInvalid, error removed {error.ErrorContent}");
+
                     //Raise the event saying that we removed a ValidationError
                     if (bindingExpression.ParentBinding.NotifyOnValidationError)
                     {
                         for (FrameworkElement elt = target as FrameworkElement; elt != null; elt = (VisualTreeHelper.GetParent(elt) as FrameworkElement))
                         {
+                            bindingExpression.LogMessage($"V ClearInvalid, raised VEE for {elt.GetType().Name}");
                             elt.INTERNAL_RaiseBindingValidationErrorEvent(
                                 new ValidationErrorEventArgs()
                                 {
@@ -187,9 +191,18 @@ namespace Windows.UI.Xaml.Controls
 
                     if (target is Control c)
                     {
+                        bindingExpression.LogMessage($"V ClearInvalid, hiding error on control");
                         c.HideValidationError();
                     }
                 }
+                else
+                {
+                    bindingExpression.LogMessage($"V ClearInvalid, nothing to clear");
+                }
+            }
+            else
+            {
+                bindingExpression.LogMessage($"V ClearInvalid, target is null");
             }
         }
 
@@ -221,6 +234,7 @@ namespace Windows.UI.Xaml.Controls
             UIElement target = bindingExpression.Target as UIElement;
             if (target != null)
             {
+                bindingExpression.LogMessage($"V MarkInvalid, target is {bindingExpression.Target.GetType().ToString()}");
                 // We remove any previous error because I don't see how we could have 
                 // multiple ones on a single Binding + it wouldn't fit in the Dictionary 
                 // as it is.
@@ -249,6 +263,8 @@ namespace Windows.UI.Xaml.Controls
                     validationErrors.Add(validationError);
                 }
 
+                bindingExpression.LogMessage($"V MarkInvalid, was valid {wasValid}, error added {validationError.ErrorContent}");
+
                 if (wasValid)
                 {
                     target.SetValue(Validation.HasErrorProperty, true);
@@ -259,6 +275,7 @@ namespace Windows.UI.Xaml.Controls
                 {
                     for (FrameworkElement elt = target as FrameworkElement; elt != null; elt = (VisualTreeHelper.GetParent(elt) as FrameworkElement))
                     {
+                        bindingExpression.LogMessage($"V MarkInvalid, raised VEE for {elt.GetType().Name}");
                         elt.INTERNAL_RaiseBindingValidationErrorEvent(
                             new ValidationErrorEventArgs()
                             {
@@ -271,8 +288,13 @@ namespace Windows.UI.Xaml.Controls
 
                 if (target is Control c)
                 {
+                    bindingExpression.LogMessage($"V MarkInvalid, showing error on control");
                     c.ShowValidationError();
                 }
+            }
+            else
+            {
+                bindingExpression.LogMessage($"V MarkInvalid, target is null");
             }
 
         }
