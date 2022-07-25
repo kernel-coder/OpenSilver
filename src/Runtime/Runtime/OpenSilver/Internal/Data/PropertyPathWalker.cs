@@ -122,7 +122,7 @@ namespace OpenSilver.Internal.Data
 
         private static void LogMessage(string msg)
         {
-            return;
+            //return;
             System.Console.WriteLine(msg);
             System.Diagnostics.Debug.WriteLine(msg);
         }
@@ -178,10 +178,7 @@ namespace OpenSilver.Internal.Data
             {
                 if (e.PropertyName == propertyNode._propertyName)
                 {
-                    LogMessage($"PPW IDNEI VALID {e.PropertyName}");
-                    Validation.ClearInvalid(_expr);
-
-                    if (notifyDataErrorInfo.HasErrors == true)
+                    if (notifyDataErrorInfo.HasErrors)
                     {
                         var errors = notifyDataErrorInfo.GetErrors(propertyNode._propertyName);
                         if (errors != null)

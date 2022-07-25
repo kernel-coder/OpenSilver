@@ -1022,9 +1022,17 @@ namespace Windows.UI.Xaml.Controls
             }
         }
 
+        private static void LogMessage(string msg)
+        {
+            //return;
+            System.Console.WriteLine(msg);
+            System.Diagnostics.Debug.WriteLine(msg);
+        }
+
         private void UpdateValidationState(bool useTransitions)
         {
             this.HasDisplayedErrors = this._displayedErrors.Count > 0;
+            LogMessage($"VS IDNEI Has Errors {_displayedErrors.Count}");
             VisualStateManager.GoToState(this, this.HasDisplayedErrors ? InternalVisualStates.StateHasErrors : InternalVisualStates.StateEmpty, useTransitions);
         }
 

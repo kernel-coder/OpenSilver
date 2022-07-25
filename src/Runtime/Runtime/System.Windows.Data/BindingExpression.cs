@@ -324,7 +324,7 @@ namespace Windows.UI.Xaml.Data
 
         private static void LogMessage(string msg)
         {
-            return;
+            //return;
             System.Console.WriteLine(msg);
             System.Diagnostics.Debug.WriteLine(msg);
         }
@@ -483,13 +483,9 @@ namespace Windows.UI.Xaml.Data
                         return;
                 }
 
+                LogMessage($"BE IDNEI VALID (UpdateSourceObject - before node.SetValue)");
+                Validation.ClearInvalid(this);
                 node.SetValue(convertedValue);
-
-                if (_propertyPathWalker.IsBoundToNotifyError == false)
-                {
-                    LogMessage($"BE IDNEI VALID (UpdateSourceObject - after node.SetValue)");
-                    Validation.ClearInvalid(this);
-                }
             }
             catch (Exception e)
             {
