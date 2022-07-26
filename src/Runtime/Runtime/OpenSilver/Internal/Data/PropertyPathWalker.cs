@@ -40,6 +40,11 @@ namespace OpenSilver.Internal.Data
 
             FirstNode = head;
             FinalNode = tail;
+
+            if (FinalNode is StandardPropertyPathNode finalNode)
+            {
+                finalNode.EnableNotifyDataErrorChanges = true;
+            }
         }
 
         internal bool ListenForChanges { get; }
@@ -84,11 +89,6 @@ namespace OpenSilver.Internal.Data
 
             var parser = new PropertyPathParser(path);
             PropertyNodeType type;
-
-            if (!string.IsNullOrEmpty(path) && path.Contains("SelectedItem"))
-            {
-                _expr.LogMessage("Found selectedItem");
-            }
 
             while ((type = parser.Step(out string typeName, out string propertyName, out string index)) != PropertyNodeType.None)
             {

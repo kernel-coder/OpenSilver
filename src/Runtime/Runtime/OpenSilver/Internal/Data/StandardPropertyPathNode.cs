@@ -140,6 +140,8 @@ namespace OpenSilver.Internal.Data
             }
         }
 
+        internal bool EnableNotifyDataErrorChanges { get; set; } = false;
+
         internal override void OnSourceChanged(object oldValue, object newValue)
         {
             if (Listener.ListenForChanges && oldValue is INotifyPropertyChanged inpc)
@@ -260,17 +262,11 @@ namespace OpenSilver.Internal.Data
         internal bool IsBoundToNotifyErrorForSource { get; private set; } = false;
         private void DetachBindingFromNotifyDataErrorInfo(object source)
         {
-            if (!_expr.ParentBinding.NotifyOnValidationError) return;
-
-            if (_expr.Target is TextBox)
-            {
-                _expr.LogMessage("This is a text box");
-            }
+            if (!_expr.ParentBinding.NotifyOnValidationError || !EnableNotifyDataErrorChanges) return;
 
             var oldNDEI = source as INotifyDataErrorInfo;
             if (oldNDEI != null)
             {
-                _expr.LogMessage("SPPN IDNEI Detaching from source");
                 IsBoundToNotifyErrorForSource = false;
                 oldNDEI.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
             }
@@ -278,17 +274,11 @@ namespace OpenSilver.Internal.Data
 
         private void AttachBindingFromNotifyDataErrorInfo(object source)
         {
-            if (!_expr.ParentBinding.NotifyOnValidationError) return;
-
-            if (_expr.Target is TextBox)
-            {
-                _expr.LogMessage("This is a text box");
-            }
+            if (!_expr.ParentBinding.NotifyOnValidationError || !EnableNotifyDataErrorChanges) return;
 
             var newNDEI = source as INotifyDataErrorInfo;
             if (newNDEI != null)
             {
-                _expr.LogMessage("SPPN IDNEI Attaching to source");
                 IsBoundToNotifyErrorForSource = true;
                 newNDEI.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
             }
@@ -310,7 +300,6 @@ namespace OpenSilver.Internal.Data
                             {
                                 if (error != null)
                                 {
-                                    _expr.LogMessage($"SPPN IDNEI INVALID {error.ToString()}");
                                     Validation.MarkInvalid(_expr, new ValidationError(_expr) { ErrorContent = error.ToString() });
                                 }
                             }
@@ -318,7 +307,6 @@ namespace OpenSilver.Internal.Data
                     }
                     else
                     {
-                        _expr.LogMessage($"SPPN IDNEI VALID");
                         Validation.ClearInvalid(_expr);
                     }
                 }

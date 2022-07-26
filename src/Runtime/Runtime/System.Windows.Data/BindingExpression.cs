@@ -325,13 +325,6 @@ namespace Windows.UI.Xaml.Data
             }
         }
 
-        internal void LogMessage(string msg)
-        {
-            //return;
-            System.Console.WriteLine(ID + '-' +  msg);
-            System.Diagnostics.Debug.WriteLine(ID + '-' + msg);
-        }
-
         private void OnCollectionViewSourceViewChanged(object sender, IDependencyPropertyChangedEventArgs args)
         {
             _bindingSource = args.NewValue;
@@ -367,7 +360,7 @@ namespace Windows.UI.Xaml.Data
                             while (currentException.InnerException != null)
                                 currentException = currentException.InnerException;
                         }
-                        LogMessage($"BE IDNEI INVALID (CheckInitialValueValidity-Exc)  {currentException.Message}");
+
                         Validation.MarkInvalid(this, new ValidationError(this) { Exception = currentException, ErrorContent = currentException.Message });
                     }
                 }
@@ -486,7 +479,6 @@ namespace Windows.UI.Xaml.Data
                         return;
                 }
 
-                LogMessage($"BE IDNEI VALID (UpdateSourceObject - before node.SetValue)");
                 Validation.ClearInvalid(this);
                 node.SetValue(convertedValue);
             }
@@ -502,7 +494,7 @@ namespace Windows.UI.Xaml.Data
                     {
                         currentException = currentException.InnerException;
                     }
-                    LogMessage($"BE IDNEI INVALID (UpdateSourceObject-Exc)  {currentException.Message}");
+
                     Validation.MarkInvalid(this, new ValidationError(this) { Exception = currentException, ErrorContent = currentException.Message });
                 }
             }
