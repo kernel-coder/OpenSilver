@@ -173,6 +173,33 @@ namespace OpenSilver.Internal.Data
                     notifyDataErrorInfo.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
                 }
             }
+
+            if (FirstNode != null)
+            {
+                var parentNode = FirstNode;
+                var currentNode = FirstNode;
+                while (currentNode != FinalNode)
+                {
+                    parentNode = currentNode;
+                    currentNode = currentNode.Next;
+                }
+
+                var notifyDataErrorInfo = parentNode.Value as INotifyDataErrorInfo;
+                if (notifyDataErrorInfo != null)
+                {
+                    if (attach)
+                    {
+                        _expr.LogMessage("PPW IDNEI Binding to second last node value");
+                        IsBoundToNotifyError = true;
+                        notifyDataErrorInfo.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
+                    }
+                    else
+                    {
+                        IsBoundToNotifyError = false;
+                        notifyDataErrorInfo.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
+                    }
+                }
+            }
         }
 
         private void NotifyDataErrorInfo_ErrorsChanged(object sender, DataErrorsChangedEventArgs e)
