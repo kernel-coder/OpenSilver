@@ -160,7 +160,7 @@ namespace OpenSilver.Internal.Data
             _prop = null;
             _field = null;
 
-            DetachBindingFromNotifyDataErrorInfo(oldValue);
+            UpdateBindingForNotifyDataErrorInfo(oldValue, false);
 
             if (Source == null)
                 return;
@@ -213,7 +213,7 @@ namespace OpenSilver.Internal.Data
                 }
             }
 
-            AttachBindingFromNotifyDataErrorInfo(newValue);
+            UpdateBindingForNotifyDataErrorInfo(newValue, true);
         }
 
         private void OnSourcePropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -259,28 +259,21 @@ namespace OpenSilver.Internal.Data
             return Source == null || (_prop == null && _field == null && _dp == null);
         }
 
-        internal bool IsBoundToNotifyErrorForSource { get; private set; } = false;
-        private void DetachBindingFromNotifyDataErrorInfo(object source)
+        private void UpdateBindingForNotifyDataErrorInfo(object source, bool attach)
         {
             if (!_expr.ParentBinding.NotifyOnValidationError || !EnableNotifyDataErrorChanges) return;
 
-            var oldNDEI = source as INotifyDataErrorInfo;
-            if (oldNDEI != null)
+            var ndei = source as INotifyDataErrorInfo;
+            if (ndei != null)
             {
-                IsBoundToNotifyErrorForSource = false;
-                oldNDEI.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
-            }
-        }
-
-        private void AttachBindingFromNotifyDataErrorInfo(object source)
-        {
-            if (!_expr.ParentBinding.NotifyOnValidationError || !EnableNotifyDataErrorChanges) return;
-
-            var newNDEI = source as INotifyDataErrorInfo;
-            if (newNDEI != null)
-            {
-                IsBoundToNotifyErrorForSource = true;
-                newNDEI.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
+                if (attach)
+                {
+                    ndei.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
+                }
+                else
+                {
+                    ndei.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
+                }
             }
         }
 
