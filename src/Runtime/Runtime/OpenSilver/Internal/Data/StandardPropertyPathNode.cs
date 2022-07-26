@@ -17,6 +17,8 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Markup;
 using CSHTML5.Internal;
+using System.Windows.Data;
+using System.Windows.Controls;
 
 #if MIGRATION
 using System.Windows;
@@ -35,10 +37,12 @@ namespace OpenSilver.Internal.Data
         private DependencyProperty _dp;
         private PropertyInfo _prop;
         private FieldInfo _field;
+        private readonly BindingExpression _expr;
 
-        internal StandardPropertyPathNode(PropertyPathWalker listener, string typeName, string propertyName)
+        internal StandardPropertyPathNode(BindingExpression expression, PropertyPathWalker listener, string typeName, string propertyName)
             : base(listener)
         {
+            _expr = expression;
             _resolvedType = typeName != null ? Type.GetType(typeName) : null;
             _propertyName = propertyName;
         }
@@ -154,6 +158,8 @@ namespace OpenSilver.Internal.Data
             _prop = null;
             _field = null;
 
+            DetachBindingFromNotifyDataErrorInfo(oldValue);
+
             if (Source == null)
                 return;
 
@@ -204,6 +210,8 @@ namespace OpenSilver.Internal.Data
                     _field = sourceType.GetField(_propertyName);
                 }
             }
+
+            AttachBindingFromNotifyDataErrorInfo(newValue);
         }
 
         private void OnSourcePropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -247,6 +255,74 @@ namespace OpenSilver.Internal.Data
         private bool CheckIsBroken()
         {
             return Source == null || (_prop == null && _field == null && _dp == null);
+        }
+
+        internal bool IsBoundToNotifyErrorForSource { get; private set; } = false;
+        private void DetachBindingFromNotifyDataErrorInfo(object source)
+        {
+            if (!_expr.ParentBinding.NotifyOnValidationError) return;
+
+            if (_expr.Target is TextBox)
+            {
+                _expr.LogMessage("This is a text box");
+            }
+
+            var oldNDEI = source as INotifyDataErrorInfo;
+            if (oldNDEI != null)
+            {
+                _expr.LogMessage("SPPN IDNEI Detaching from source");
+                IsBoundToNotifyErrorForSource = false;
+                oldNDEI.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
+            }
+        }
+
+        private void AttachBindingFromNotifyDataErrorInfo(object source)
+        {
+            if (!_expr.ParentBinding.NotifyOnValidationError) return;
+
+            if (_expr.Target is TextBox)
+            {
+                _expr.LogMessage("This is a text box");
+            }
+
+            var newNDEI = source as INotifyDataErrorInfo;
+            if (newNDEI != null)
+            {
+                _expr.LogMessage("SPPN IDNEI Attaching to source");
+                IsBoundToNotifyErrorForSource = true;
+                newNDEI.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
+            }
+        }
+
+        private void NotifyDataErrorInfo_ErrorsChanged(object sender, DataErrorsChangedEventArgs e)
+        {
+            var notifyDataErrorInfo = sender as INotifyDataErrorInfo;
+            if (notifyDataErrorInfo != null)
+            {
+                if (e.PropertyName == _propertyName)
+                {
+                    if (notifyDataErrorInfo.HasErrors)
+                    {
+                        var errors = notifyDataErrorInfo.GetErrors(_propertyName);
+                        if (errors != null)
+                        {
+                            foreach (var error in errors)
+                            {
+                                if (error != null)
+                                {
+                                    _expr.LogMessage($"SPPN IDNEI INVALID {error.ToString()}");
+                                    Validation.MarkInvalid(_expr, new ValidationError(_expr) { ErrorContent = error.ToString() });
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _expr.LogMessage($"SPPN IDNEI VALID");
+                        Validation.ClearInvalid(_expr);
+                    }
+                }
+            }
         }
     }
 }
