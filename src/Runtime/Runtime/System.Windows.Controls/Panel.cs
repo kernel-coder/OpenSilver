@@ -135,13 +135,23 @@ namespace Windows.UI.Xaml.Controls
             }
         }
 
-        private bool _enableProgressiveRendering;
-        public bool EnableProgressiveRendering
+        private int? _progressiveRenderingChunkSize;
+
+        /// <summary>
+        /// Gets or sets local value of chunk size to render progressively in a batch.
+        /// Setting this option can improve performance.
+        /// Value with 0 or less than 0 means disabled progressive loading. Value close to 1 can break UI in some cases.
+        /// Default value is null, so <see cref="Settings.ProgressiveRenderingChunkSize"/> is used.
+        /// </summary>
+        public int? ProgressiveRenderingChunkSize
         {
-            get { return this._enableProgressiveRendering || INTERNAL_ApplicationWideEnableProgressiveRendering; }
-            set { this._enableProgressiveRendering = value; }
+            get => _progressiveRenderingChunkSize.HasValue ? _progressiveRenderingChunkSize.Value : INTERNAL_ApplicationWideProgressiveRenderingChunk;
+            set
+            {
+                this._progressiveRenderingChunkSize = value;
+            }
         }
-        internal static bool INTERNAL_ApplicationWideEnableProgressiveRendering;
+        internal static int INTERNAL_ApplicationWideProgressiveRenderingChunk;
 
         private void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -184,7 +194,8 @@ namespace Windows.UI.Xaml.Controls
                 return;
             }
 
-            if (this.EnableProgressiveRendering || this.INTERNAL_EnableProgressiveLoading)
+            var enableProgressiveRendering = ProgressiveRenderingChunkSize.HasValue && ProgressiveRenderingChunkSize.Value > 0 && Children.Count > ProgressiveRenderingChunkSize.Value;
+            if (enableProgressiveRendering)
             {
                 this.ProgressivelyAttachChildren(this.Children);
             }
@@ -574,7 +585,11 @@ namespace Windows.UI.Xaml.Controls
 
         private async void ProgressivelyAttachChildren(IList<UIElement> newChildren)
         {
-            for (int i = 0; i < newChildren.Count; ++i)
+            int chunkSize = ProgressiveRenderingChunkSize.Value;
+            int from = 0;
+            int to = (chunkSize * 2 > newChildren.Count) ? newChildren.Count : chunkSize; // do not process less number of items than chunk size
+            
+            while (true)
             {
                 await Task.Delay(1);
                 if (!INTERNAL_VisualTreeManager.IsElementInVisualTree(this))
@@ -582,15 +597,24 @@ namespace Windows.UI.Xaml.Controls
                     //this can happen if the Panel is detached during the delay.
                     break;
                 }
-                INTERNAL_VisualTreeManager.AttachVisualChildIfNotAlreadyAttached(newChildren[i], this);
-                INTERNAL_OnChildProgressivelyLoaded();
+
+                for (int i = from; i < to; ++i)
+                {
+                    INTERNAL_VisualTreeManager.AttachVisualChildIfNotAlreadyAttached(newChildren[i], this, i);
+                }
+
+                int remaining = newChildren.Count - to;
+                if (remaining == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    from = to;
+                    to += (chunkSize * 2 > remaining) ? remaining : chunkSize;
+                }
             }
         }
-
-        protected virtual void INTERNAL_OnChildProgressivelyLoaded()
-        {
-        }
-
 
         /// <summary>
         /// Retrieves the named element in the instantiated ControlTemplate visual tree.
