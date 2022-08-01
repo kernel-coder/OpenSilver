@@ -469,7 +469,6 @@ namespace Windows.UI.Xaml.Controls
             // Set default style:
             this.DefaultStyleKey = typeof(ChildWindow);
 #endif
-            this.GotFocus += ChildWindow_GotFocus;
         }
 
         
