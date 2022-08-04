@@ -15,6 +15,7 @@ using System;
 using System.Windows.Automation.Peers;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Threading.Tasks;
 #else
 using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Data;
@@ -845,7 +846,11 @@ namespace Windows.UI.Xaml.Controls
             OnElementsChanged(true /*grew*/);
         }
 
-        private void AddSlots(int totalSlots)
+        public int? RowChunkSize { get; set; }
+        public event Action<bool> RowsLoadingInProgressChanged;
+        public bool IsRowsLoadingInProgress { get; private set; } = false;
+
+        private async void AddSlots(int totalSlots)
         {
             this.SlotCount = 0;
             this.VisibleSlotCount = 0;
@@ -859,8 +864,46 @@ namespace Windows.UI.Xaml.Controls
                     nextGroupSlot = groupSlots.Current;
                 }
             }
+
+            int globalChunkSize = Application.Current.Host.Settings.DataGridProgressiveLoadingChunkSize != null ?
+                Application.Current.Host.Settings.DataGridProgressiveLoadingChunkSize.Value : 0;
+            int chunkSize = RowChunkSize != null ? RowChunkSize.Value : globalChunkSize;
+            int chunkSlots = chunkSize > 0 ? Math.Min(chunkSize, totalSlots) : totalSlots;
+
+            int addedfRows = 0;
             int slot = 0;
-            int addedRows = 0;
+            AddSlotsInChunk(ref addedfRows, ref slot, ref nextGroupSlot, chunkSlots, groupSlots);
+
+            if (chunkSlots < totalSlots)
+            {
+                IsRowsLoadingInProgress = true;
+                RowsLoadingInProgressChanged?.Invoke(true);
+            }
+
+            while (chunkSlots < totalSlots)
+            {
+                await Task.Delay(1);
+                chunkSlots = Math.Min(SlotIsDisplayed(slot) ? chunkSlots + chunkSize : totalSlots, totalSlots);
+                AddSlotsInChunk(ref addedfRows, ref slot, ref nextGroupSlot, chunkSlots, groupSlots);
+            }
+
+            if (IsRowsLoadingInProgress)
+            {
+                IsRowsLoadingInProgress = false;
+                RowsLoadingInProgressChanged?.Invoke(false);
+            }
+
+            if (slot < totalSlots)
+            {
+                this.SlotCount += totalSlots - slot;
+                this.VisibleSlotCount += totalSlots - slot;
+                OnAddedElement_Phase2(0, this._vScrollBar == null || this._vScrollBar.Visibility == Visibility.Visible /*updateVerticalScrollBarOnly*/);
+                OnElementsChanged(true /*grew*/);
+            }
+        }
+
+        private void AddSlotsInChunk(ref int addedRows, ref int slot, ref int nextGroupSlot, int totalSlots, IEnumerator<int> groupSlots)
+        {
             while (slot < totalSlots && this.AvailableSlotElementRoom > 0)
             {
                 if (slot == nextGroupSlot)
@@ -874,15 +917,8 @@ namespace Windows.UI.Xaml.Controls
                     AddSlotElement(slot, GenerateRow(addedRows, slot));
                     addedRows++;
                 }
-                slot++;
-            }
 
-            if (slot < totalSlots)
-            {
-                this.SlotCount += totalSlots - slot;
-                this.VisibleSlotCount += totalSlots - slot;
-                OnAddedElement_Phase2(0, this._vScrollBar == null || this._vScrollBar.Visibility == Visibility.Visible /*updateVerticalScrollBarOnly*/);
-                OnElementsChanged(true /*grew*/);
+                slot++;
             }
         }
 
@@ -1610,7 +1646,7 @@ namespace Windows.UI.Xaml.Controls
             DataGridRow dataGridRow = GetGeneratedRow(dataContext);
             if (dataGridRow == null)
             {
-                dataGridRow = this.DisplayData.GetUsedRow() ?? new DataGridRow();
+                dataGridRow = this.DisplayData.GetUsedRow() ?? new DataGridRow() { KeepHiddenInFirstRender = IsRowsLoadingInProgress };
                 dataGridRow.Index = rowIndex;
                 dataGridRow.Slot = slot;
                 dataGridRow.OwningGrid = this;
