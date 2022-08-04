@@ -226,5 +226,7 @@ namespace System
         /// </returns>
         [OpenSilver.NotImplemented]
         public int MaxFrameRate { get; set; }
+
+        public int? DataGridProgressiveLoadingChunkSize { get; set; }
     }
 }
