@@ -117,10 +117,16 @@ namespace System
             set { INTERNAL_VisualTreeManager.EnableOptimizationWhereCollapsedControlsAreLoadedLast = value; }
         }
 
-        public bool EnableProgressiveRendering
+        /// <summary>
+        /// Gets or sets the number of children in a Panel to render progressively in a batch.
+        /// Setting this option can improve performance.
+        /// Value with 0 or less than 0 means disabled progressive loading. Value close to 1 can break UI in some cases.
+        /// Progressive loading is disabled by default.
+        /// </summary>
+        public int ProgressiveRenderingChunkSize
         {
-            get { return Panel.INTERNAL_ApplicationWideEnableProgressiveRendering; }
-            set { Panel.INTERNAL_ApplicationWideEnableProgressiveRendering = value; }
+            get { return Panel.INTERNAL_ApplicationWideProgressiveRenderingChunk; }
+            set { Panel.INTERNAL_ApplicationWideProgressiveRenderingChunk = value; }
         }
 
         public bool EnableInvalidPropertyMetadataDefaultValueExceptions { get; set; }
