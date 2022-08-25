@@ -619,15 +619,12 @@ namespace Windows.UI.Xaml.Controls.Primitives
                     INTERNAL_ForceEnableAllPointerEvents = INTERNAL_AllowDisableClickTransparency && !transparentToClicks, // This is here because we set "pointerEvents='none' to the PopupRoot, so we need to re-enable pointer events in the children (unless we have calculated that the popup should be "transparentToClicks").
                 };
 
-                if (!Double.IsNaN(this.MaxHeight) && this.MaxHeight > 0)
-                {
-                    _outerBorder.MaxHeight = this.MaxHeight;
-                }
-
                 Binding b = new Binding("Width") { Source = this };
                 _outerBorder.SetBinding(Border.WidthProperty, b);
                 Binding b2 = new Binding("Height") { Source = this };
                 _outerBorder.SetBinding(Border.HeightProperty, b2);
+                Binding b3 = new Binding("MaxHeight") { Source = this };
+                _outerBorder.SetBinding(Border.MaxHeightProperty, b3);
 
                 // Make sure that after the OuterBorder raises the Loaded event, the PopupRoot also raises the Loaded event:
                 _outerBorder.Loaded += (s, e) => { popupRoot.INTERNAL_RaiseLoadedEvent(); };
