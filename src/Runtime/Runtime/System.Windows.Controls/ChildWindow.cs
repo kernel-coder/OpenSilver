@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using CSHTML5.Internal;
 #if MIGRATION
 using System.Windows;
 using System.Windows.Controls;
@@ -874,6 +875,19 @@ namespace Windows.UI.Xaml.Controls
                     {
                         Application.Current.RootVisual.GotFocus -= new RoutedEventHandler(this.RootVisual_GotFocus);
                     }
+
+                    try
+                    {
+                        var uniqueIdentifier = ((INTERNAL_HtmlDomElementReference)(this.ContentRoot?.INTERNAL_InnerDomElement))?.UniqueIdentifier;
+                        if (!string.IsNullOrEmpty(uniqueIdentifier))
+                        {
+                            OpenSilver.Interop.ExecuteJavaScriptAsync("window.deactivateFocusTrap($0);", uniqueIdentifier);
+                        }
+                    }
+                    catch(Exception exc)
+                    {
+                        Console.WriteLine($"CW Closed exc: {exc.Message}");
+                    }                  
                 }
             }
             else
@@ -1444,6 +1458,19 @@ namespace Windows.UI.Xaml.Controls
             if (this.ContentRoot != null)
             {
                 this.ChangeVisualState();
+            }
+
+            try
+            {
+                var uniqueIdentifier = ((INTERNAL_HtmlDomElementReference)(this.ContentRoot?.INTERNAL_InnerDomElement))?.UniqueIdentifier;
+                if (!string.IsNullOrEmpty(uniqueIdentifier))
+                {
+                    OpenSilver.Interop.ExecuteJavaScriptAsync("window.activateFocusTrap($0);", uniqueIdentifier);
+                }
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine($"CW showing exc: {exc.Message}");
             }
         }
 

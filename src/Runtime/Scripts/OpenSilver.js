@@ -66,6 +66,18 @@ velocityScript.setAttribute('type', 'application/javascript');
 velocityScript.setAttribute('src', 'libs/ResizeObserver.js');
 document.getElementsByTagName('head')[0].appendChild(velocityScript);
 
+//new Element("script", { src: "UmdTabbable.js", type: "application/javascript" });
+var tabbableScript = document.createElement('script');
+tabbableScript.setAttribute('type', 'application/javascript');
+tabbableScript.setAttribute('src', 'libs/UmdTabbable.js');
+document.getElementsByTagName('head')[0].appendChild(tabbableScript);
+
+
+//new Element("script", { src: "UmdFocusTrap.js", type: "application/javascript" });
+var focusTrapScript = document.createElement('script');
+focusTrapScript.setAttribute('type', 'application/javascript');
+focusTrapScript.setAttribute('src', 'libs/UmdFocusTrap.js');
+document.getElementsByTagName('head')[0].appendChild(focusTrapScript);
 
 window.onCallBack = (function () {
     const opensilver = "OpenSilver";
@@ -156,3 +168,29 @@ window.callJSUnmarshalled = function (javaScriptToExecute) {
             return BINDING.js_to_mono_obj(result + " [NOT USABLE DIRECTLY IN C#] (" + resultType + ")");
     }
 }; 
+
+window.focusTrapsActive = {};
+window.activateFocusTrap = function (id) {
+    if (window.focusTrapsActive.hasOwnProperty(id)) {
+        console.log('focus trap already active for ', id);
+        window.focusTrapsActive[id].updateContainerElements();        
+        return;
+    }
+    var trap = window.focusTrap.createFocusTrap('#' + id);
+    window.focusTrapsActive[id] = trap;
+    trap.activate();
+}
+
+window.deactivateFocusTrap = function (id, pid) {
+    if (!window.focusTrapsActive.hasOwnProperty(id)) {
+        console.log('focus trap not active for ', id);
+        return;
+    }
+    window.focusTrapsActive[id].deactivate();
+    delete window.focusTrapsActive[id];
+
+    if (pid) activateFocusTrap(pid);
+}
+window.isFocusTrapActive = function (id) {
+    return window.focusTrapsActive.hasOwnProperty(id);
+}
