@@ -554,21 +554,5 @@ namespace Windows.UI.Xaml.Controls
             get { return (bool)this.GetValue(IsSelectionBoxHighlightedProperty); }
             private set { this.SetValue(IsSelectionBoxHighlightedProperty, value); }
         }
-
-#if MIGRATION
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
-#else
-        protected override void OnPointerReleased(PointerRoutedEventArgs e)
-#endif
-        {
-            IsDropDownOpen = !IsDropDownOpen;
-
-#if MIGRATION
-            base.OnMouseLeftButtonUp(e);
-#else
-            base.OnPointerReleased(e);
-#endif
-        }
-
     }
 }
