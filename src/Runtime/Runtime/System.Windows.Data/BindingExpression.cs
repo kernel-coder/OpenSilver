@@ -15,6 +15,7 @@ using System;
 using System.Diagnostics;
 using CSHTML5.Internal;
 using OpenSilver.Internal.Data;
+using System.ComponentModel;
 
 #if MIGRATION
 using System.Windows.Controls;
@@ -283,7 +284,74 @@ namespace Windows.UI.Xaml.Data
             Target = null;
         }
 
-        internal void ValueChanged() => Refresh();
+        private INotifyDataErrorInfo _dataErrorInfoForSource;
+        private INotifyDataErrorInfo _dataErrorInfoForValue;
+
+        internal void ValueChanged()
+        {
+            if (_dataErrorInfoForSource != null)
+            {
+                _dataErrorInfoForSource.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
+                _dataErrorInfoForSource = null;
+            }
+
+            if (!_propertyPathWalker.IsPathBroken)
+            {
+                _dataErrorInfoForSource = _propertyPathWalker.FinalNode.Source as INotifyDataErrorInfo;
+                if (_dataErrorInfoForSource != null)
+                {
+                    _dataErrorInfoForSource.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
+                    UpdateValidationErrors(_dataErrorInfoForSource, _propertyPathWalker.FinalNode.PropertyName);
+                }
+            }
+
+            if (_dataErrorInfoForValue != null)
+            {
+                _dataErrorInfoForValue.ErrorsChanged -= NotifyDataErrorInfo_ErrorsChanged;
+                _dataErrorInfoForValue = null;
+            }
+
+            if (!_propertyPathWalker.IsPathBroken)
+            {
+                _dataErrorInfoForValue = _propertyPathWalker.FinalNode.Value as INotifyDataErrorInfo;
+                if (_dataErrorInfoForValue != null)
+                {
+                    _dataErrorInfoForValue.ErrorsChanged += NotifyDataErrorInfo_ErrorsChanged;
+                    UpdateValidationErrors(_dataErrorInfoForValue, _propertyPathWalker.FinalNode.PropertyName);
+                }
+            }
+
+            Refresh();
+        }
+
+        private void NotifyDataErrorInfo_ErrorsChanged(object sender, DataErrorsChangedEventArgs e)
+        {
+            UpdateValidationErrors(sender as INotifyDataErrorInfo, e.PropertyName);
+        }
+
+        private void UpdateValidationErrors(INotifyDataErrorInfo notifyDataErrorInfo, string propertyName)
+        {
+            if (notifyDataErrorInfo == null || propertyName != _propertyPathWalker.FinalNode.PropertyName) return;
+
+            if (notifyDataErrorInfo.HasErrors)
+            {
+                var errors = notifyDataErrorInfo.GetErrors(propertyName);
+                if (errors != null)
+                {
+                    foreach (var error in errors)
+                    {
+                        if (error != null)
+                        {
+                            Validation.MarkInvalid(this, new ValidationError(this) { ErrorContent = error.ToString() });
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Validation.ClearInvalid(this);
+            }
+        }
 
         /// <summary>
         /// The element that is the binding target object of this binding expression.
@@ -471,8 +539,9 @@ namespace Windows.UI.Xaml.Data
                         return;                    
                 }
 
-                node.SetValue(convertedValue);
+                // clearing invalid stuff first as node.SetValue triggers the INotifyDataErrorInfo.ErrorsChanged event
                 Validation.ClearInvalid(this);
+                node.SetValue(convertedValue);
             }
             catch (Exception e)
             {
