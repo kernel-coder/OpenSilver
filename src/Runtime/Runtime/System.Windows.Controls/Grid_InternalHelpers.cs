@@ -326,7 +326,7 @@ namespace Windows.UI.Xaml.Controls
             if (normalizedColumnDefinitions.Count == 0)
                 normalizedColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(100d, GridUnitType.Star), Parent = grid });
             if (normalizedRowDefinitions.Count == 0)
-                normalizedRowDefinitions.Add(new RowDefinition() { Height = new GridLength(100d, GridUnitType.Auto), Parent = grid });
+                normalizedRowDefinitions.Add(new RowDefinition() { Height = new GridLength(100d, GridUnitType.Star), Parent = grid });
         }
 
         private static void NormalizeWidthAndHeightPercentages_CSSVersion(Grid grid, ColumnDefinitionCollection columnDefinitionsOrNull, RowDefinitionCollection rowDefinitionsOrNull, out List<ColumnDefinition> normalizedColumnDefinitions, out List<RowDefinition> normalizedRowDefinitions)
@@ -403,7 +403,7 @@ namespace Windows.UI.Xaml.Controls
             if (normalizedColumnDefinitions.Count == 0)
                 normalizedColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1d, GridUnitType.Star), Parent = grid });
             if (normalizedRowDefinitions.Count == 0)
-                normalizedRowDefinitions.Add(new RowDefinition() { Height = new GridLength(1d, GridUnitType.Auto), Parent = grid });
+                normalizedRowDefinitions.Add(new RowDefinition() { Height = new GridLength(1d, GridUnitType.Star), Parent = grid });
         }
 
         /// <summary>
