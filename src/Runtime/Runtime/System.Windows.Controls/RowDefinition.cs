@@ -220,7 +220,7 @@ namespace Windows.UI.Xaml.Controls
                 nameof(Height), 
                 typeof(GridLength), 
                 typeof(RowDefinition),
-                new PropertyMetadata(new GridLength(1.0, GridUnitType.Star), Height_Changed));
+                new PropertyMetadata(new GridLength(1.0, GridUnitType.Auto), Height_Changed));
 
         private static void Height_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
