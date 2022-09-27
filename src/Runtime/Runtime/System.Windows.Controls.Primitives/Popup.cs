@@ -304,7 +304,12 @@ namespace Windows.UI.Xaml.Controls.Primitives
                 if (isOpen)
                 {
                     // Show the popup:
-                    popup.ShowPopupRootIfNotAlreadyVisible();
+                    bool isCombobox = popup.PlacementTarget is ComboBox;
+                    popup.ShowPopupRootIfNotAlreadyVisible(isCombobox);
+                    if (isCombobox)
+                    {
+                        popup._popupRoot.Visibility = Visibility.Visible;
+                    }
                     popup.OnOpened();
                 }
                 else
@@ -329,7 +334,8 @@ namespace Windows.UI.Xaml.Controls.Primitives
                         popup.OnOpened();
 
                         popup._controlToWatch = Window.Current.INTERNAL_PositionsWatcher.AddControlToWatch(targetElement, popup.RefreshPopupPosition);
-                        popup.ShowPopupRootIfNotAlreadyVisible();
+                        bool isCombobox = targetElement is ComboBox;
+                        popup.ShowPopupRootIfNotAlreadyVisible(isCombobox);
 
                         //We calculate the position at which the popup will be:
 
@@ -349,6 +355,10 @@ namespace Windows.UI.Xaml.Controls.Primitives
 
                         //We put the popup at the calculated position:
                         popup.RefreshPopupPosition(placementTargetPosition, elementCurrentSize); //note: We might have a position bug here if parentposition is set, ie if popup is in the visual tree
+                        if (isCombobox)
+                        {
+                            popup._popupRoot.Visibility = Visibility.Visible;
+                        }
                     }
                     else
                     {
@@ -583,9 +593,9 @@ namespace Windows.UI.Xaml.Controls.Primitives
                 typeof(Popup), 
                 new PropertyMetadata(false));
 
-#endregion
+        #endregion
 
-        private void ShowPopupRootIfNotAlreadyVisible()
+        private void ShowPopupRootIfNotAlreadyVisible(bool keepInitiallyHidden = false)
         {
             if (!_isVisible)
             {
@@ -600,6 +610,10 @@ namespace Windows.UI.Xaml.Controls.Primitives
 
                 // Create the popup root:
                 var popupRoot = INTERNAL_PopupsManager.CreateAndAppendNewPopupRoot(parentWindow);
+                if (keepInitiallyHidden)
+                {
+                    popupRoot.Visibility = Visibility.Collapsed;
+                }
                 _popupRoot = popupRoot;
                 _popupRoot.INTERNAL_LinkedPopup = this;
                 _popupRoot.UpdateIsVisible();
