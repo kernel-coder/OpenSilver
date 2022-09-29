@@ -843,6 +843,11 @@ namespace Windows.UI.Xaml.Controls
                 }
             }
 #endif
+            // this can happen while changing ItemsSource while progressive loading rows
+            if (IsProgressiveLoadingInProgress && slot != SlotCount)
+            {
+                return;
+            }
             Debug.Assert(slot == this.SlotCount);
 
             OnAddedElement_Phase1(slot, element);
@@ -889,6 +894,11 @@ namespace Windows.UI.Xaml.Controls
             int globalChunkSize = Application.Current.Host.Settings.DataGridProgressiveLoadingChunkSize != null ?
                 Application.Current.Host.Settings.DataGridProgressiveLoadingChunkSize.Value : 0;
             int chunkSize = ProgressiveLoadingRowChunkSize != null ? ProgressiveLoadingRowChunkSize.Value : globalChunkSize;
+
+            if (groupSlots != null) // progressive loading for groups is not supported yet
+            {
+                chunkSize = 0;
+            }
             int chunkSlots = chunkSize > 0 ? Math.Min(chunkSize, totalSlots) : totalSlots;
 
             int addedfRows = 0;
