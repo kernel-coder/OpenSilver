@@ -904,6 +904,11 @@ namespace Windows.UI.Xaml.Controls
             }
 
             int chunkSize = ProgressiveLoadingRowChunkSize ?? GlobalProgressiveLoadingChunkSize ?? 0;
+            if (groupSlots != null) // progressive loading for groups is not supported yet
+            {
+                chunkSize = 0;
+            }
+            
             int chunkSlots = chunkSize > 0 ? Math.Min(chunkSize, totalSlots) : totalSlots;
 
             int addedfRows = 0;
