@@ -388,7 +388,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
                     case PlacementMode.Bottom:
                         if (!double.IsNaN(placementTargetSize.Height))
                         {
-                            placementTargetPosition.Y = placementTargetSize.Height;
+                            placementTargetPosition.Y += placementTargetSize.Height;
                         }
                         break;
                     //case PlacementMode.Right:
@@ -402,7 +402,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
                     default: //note: we currently consider Right as the default placement (only Bottom and Right are supported)
                         if (!double.IsNaN(placementTargetSize.Width))
                         {
-                            placementTargetPosition.X = placementTargetSize.Width;
+                            placementTargetPosition.X += placementTargetSize.Width;
                         }
                         break;
                 }
