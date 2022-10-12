@@ -284,10 +284,11 @@ $1.removeChild(popupRoot);
                     && popupActualWidth > 0
                     && popupActualHeight > 0)
                 {
-                    Point popupPosition = new Point(0, 0);
+                    Point popupPosition = popup._referencePosition;
                     if (popup.IsConnectedToLiveTree)
                     {
                         popupPosition = popup.TransformToVisual(Application.Current.RootVisual).Transform(popupPosition);
+                        System.Console.WriteLine($"popup.IsConnectedToLiveTree : true, {popupPosition.ToString()} ");
                     }
 
                     // Determine the size of the window:
