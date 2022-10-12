@@ -195,7 +195,10 @@ namespace Windows.UI.Xaml.Controls
             // Change to the correct state in the Selection group
             if (IsSelected)
             {
-                VisualStateManager.GoToState(this, VisualStates.StateSelected, false);
+                if (!VisualStateManager.GoToState(this, IsFocused ? VisualStates.StateSelected : VisualStates.StateSelectedUnfocused, false))
+                {
+                    VisualStateManager.GoToState(this, VisualStates.StateSelected, false);
+                }                
             }
             else
             {
