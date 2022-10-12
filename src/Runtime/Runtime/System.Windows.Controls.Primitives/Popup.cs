@@ -55,10 +55,10 @@ namespace Windows.UI.Xaml.Controls.Primitives
 
         // Note: we use a ContentPresenter because we need a container that does not force its child
         // to be a logical child (since Popup.Child is already a logical child of the Popup).
-        NonLogicalContainer _outerBorder; // Used for positioning and alignment.
+        internal NonLogicalContainer _outerBorder; // Used for positioning and alignment.
 
         bool _isVisible;
-        Point _referencePosition = new Point(); // This is the (X,Y) position of the reference point defined in the "Note for proper placement of the popup" above.
+        internal Point _referencePosition = new Point(); // This is the (X,Y) position of the reference point defined in the "Note for proper placement of the popup" above.
 
 
 
@@ -388,7 +388,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
                     case PlacementMode.Bottom:
                         if (!double.IsNaN(placementTargetSize.Height))
                         {
-                            placementTargetPosition.Y += placementTargetSize.Height;
+                            placementTargetPosition.Y = placementTargetSize.Height;
                         }
                         break;
                     //case PlacementMode.Right:
@@ -402,7 +402,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
                     default: //note: we currently consider Right as the default placement (only Bottom and Right are supported)
                         if (!double.IsNaN(placementTargetSize.Width))
                         {
-                            placementTargetPosition.X += placementTargetSize.Width;
+                            placementTargetPosition.X = placementTargetSize.Width;
                         }
                         break;
                 }
@@ -493,6 +493,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
                 _outerBorder.Margin = new Thickness(_referencePosition.X + horizontalOffset + _positionFixing.X, _referencePosition.Y + verticalOffset + _positionFixing.Y, 0d, 0d);
             }
         }
+
 
         private Point _positionFixing = new Point();
         /// <summary>
