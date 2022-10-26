@@ -525,7 +525,7 @@ namespace Windows.UI.Xaml.Controls
             base.INTERNAL_OnAttachedToVisualTree();
 
 #if OPENSILVER
-            if (true)
+            if (false)
 #elif BRIDGE
             if (!CSHTML5.Interop.IsRunningInTheSimulator)
 #endif
