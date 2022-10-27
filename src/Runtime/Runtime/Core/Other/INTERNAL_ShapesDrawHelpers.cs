@@ -171,6 +171,8 @@ namespace CSHTML5.Internal
                     }
                 }
             }
+            var context = INTERNAL_HtmlDomManager.Get2dCanvasContext(canvasDomElement);
+            context.translate(0.5, 0.5);//makes it less blurry for some reason
         }
 
         /// <summary>
