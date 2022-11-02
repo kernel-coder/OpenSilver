@@ -4,12 +4,6 @@ env:
   current-release-version: '1.1.0'
 on:
   push:
-    branches:name: OpenSilver Build
-env:
-  next-release-version: '1.2.0'
-  current-release-version: '1.1.0'
-on:
-  push:
     branches:
       - aly_wa_minimal
 jobs:
