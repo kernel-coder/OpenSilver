@@ -41,7 +41,7 @@ namespace Windows.UI.Xaml.Data
     /// <summary>
     /// Contains information about a single instance of a <see cref="Binding" />.
     /// </summary>
-    public class BindingExpression : BindingExpressionBase
+    public class BindingExpression : BindingExpressionBase, IErrorsChangedListener
     {
         // we are not allowed to change the following in BindingExpression because it is used:
         //  - ParentBinding.Mode
@@ -66,8 +66,8 @@ namespace Windows.UI.Xaml.Data
         private DependencyPropertyChangedListener _targetPropertyListener;
         private DependencyPropertyChangedListener _dataContextListener;
         private DependencyPropertyChangedListener _cvsListener;
-        private WeakEventListener<BindingExpression, INotifyDataErrorInfo, DataErrorsChangedEventArgs> _sourceErrorsChangedListener;
-        private WeakEventListener<BindingExpression, INotifyDataErrorInfo, DataErrorsChangedEventArgs> _valueErrorsChangedListener;
+        private WeakErrorsChangedListener _sourceErrorsChangedListener;
+        private WeakErrorsChangedListener _valueErrorsChangedListener;
         private INotifyDataErrorInfo _dataErrorSource;
         private INotifyDataErrorInfo _dataErrorValue;
 
@@ -282,13 +282,13 @@ namespace Windows.UI.Xaml.Data
             {
                 if (_sourceErrorsChangedListener != null)
                 {
-                    _sourceErrorsChangedListener.Detach();
+                    _sourceErrorsChangedListener.Dispose();
                     _sourceErrorsChangedListener = null;
                 }
 
                 if (_valueErrorsChangedListener != null)
                 {
-                    _valueErrorsChangedListener.Detach();
+                    _valueErrorsChangedListener.Dispose();
                     _valueErrorsChangedListener = null;
                 }
 
@@ -379,7 +379,7 @@ namespace Windows.UI.Xaml.Data
             {
                 if (_sourceErrorsChangedListener != null)
                 {
-                    _sourceErrorsChangedListener.Detach();
+                    _sourceErrorsChangedListener.Dispose();
                     _sourceErrorsChangedListener = null;
                 }
 
@@ -387,12 +387,7 @@ namespace Windows.UI.Xaml.Data
 
                 if (_dataErrorSource != null)
                 {
-                    _sourceErrorsChangedListener = new(this, _dataErrorSource)
-                    {
-                        OnEventAction = static (instance, source, args) => instance.OnSourceErrorsChanged(source, args),
-                        OnDetachAction = static (listener, source) => source.ErrorsChanged -= listener.OnEvent,
-                    };
-                    _dataErrorSource.ErrorsChanged += _sourceErrorsChangedListener.OnEvent;
+                    _sourceErrorsChangedListener = new WeakErrorsChangedListener(this, _dataErrorSource);
                 }
             }
 
@@ -400,7 +395,7 @@ namespace Windows.UI.Xaml.Data
             {
                 if (_valueErrorsChangedListener != null)
                 {
-                    _valueErrorsChangedListener.Detach();
+                    _valueErrorsChangedListener.Dispose();
                     _valueErrorsChangedListener = null;
                 }
 
@@ -408,12 +403,7 @@ namespace Windows.UI.Xaml.Data
 
                 if (_dataErrorValue != null)
                 {
-                    _valueErrorsChangedListener = new(this, _dataErrorSource)
-                    {
-                        OnEventAction = static (instance, source, args) => instance.OnValueErrorsChanged(source, args),
-                        OnDetachAction = static (listener, source) => source.ErrorsChanged -= listener.OnEvent,
-                    };
-                    _dataErrorValue.ErrorsChanged += _valueErrorsChangedListener.OnEvent;
+                    _valueErrorsChangedListener = new WeakErrorsChangedListener(this, _dataErrorValue);
                 }
             }
 
@@ -505,16 +495,21 @@ namespace Windows.UI.Xaml.Data
             }
         }
 
-        private void OnSourceErrorsChanged(object sender, DataErrorsChangedEventArgs e)
+        void IErrorsChangedListener.OnErrorsChanged(object sender, DataErrorsChangedEventArgs e)
         {
-            if (e.PropertyName == _propertyPathWalker.FirstNode.PropertyName)
+            if (sender == _dataErrorSource)
             {
-                UpdateNotifyDataErrors(_dataErrorSource, e.PropertyName, DependencyProperty.UnsetValue);
+                if (e.PropertyName == _propertyPathWalker.FirstNode.PropertyName)
+                {
+                    UpdateNotifyDataErrors(_dataErrorSource, e.PropertyName, DependencyProperty.UnsetValue);
+                }
+            }
+            else
+            {
+                Debug.Assert(sender == _dataErrorValue);
+                UpdateNotifyDataErrors(DependencyProperty.UnsetValue);
             }
         }
-
-        private void OnValueErrorsChanged(object sender, DataErrorsChangedEventArgs e)
-            => UpdateNotifyDataErrors(DependencyProperty.UnsetValue);
 
         internal void OnSourceAvailable(bool lastAttempt)
         {

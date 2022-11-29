@@ -26,13 +26,13 @@ using Windows.UI.Xaml;
 
 namespace OpenSilver.Internal.Data
 {
-    internal sealed class StandardPropertyPathNode : PropertyPathNode
+    internal sealed class StandardPropertyPathNode : PropertyPathNode, IPropertyChangedListener
     {
         private readonly Type _resolvedType;
         private readonly string _propertyName;
 
         private DependencyPropertyChangedListener _dpListener;
-        private WeakEventListener<StandardPropertyPathNode, INotifyPropertyChanged, PropertyChangedEventArgs> _propertyChangedListener;
+        private WeakPropertyChangedListener _propertyChangedListener;
         private DependencyProperty _dp;
         private PropertyInfo _prop;
         private FieldInfo _field;
@@ -143,7 +143,7 @@ namespace OpenSilver.Internal.Data
         {
             if (Listener.ListenForChanges && _propertyChangedListener != null)
             {
-                _propertyChangedListener.Detach();
+                _propertyChangedListener.Dispose();
                 _propertyChangedListener = null;
             }
 
@@ -163,12 +163,7 @@ namespace OpenSilver.Internal.Data
 
             if (Listener.ListenForChanges && newValue is INotifyPropertyChanged inpc)
             {
-                _propertyChangedListener = new(this, inpc)
-                {
-                    OnEventAction = static (instance, source, args) => instance.OnPropertyChanged(source, args),
-                    OnDetachAction = static (listener, source) => source.PropertyChanged -= listener.OnEvent,
-                };
-                inpc.PropertyChanged += _propertyChangedListener.OnEvent;
+                _propertyChangedListener = new WeakPropertyChangedListener(this, inpc);
             }
 
             if (newValue is DependencyObject sourceDO)
@@ -240,7 +235,7 @@ namespace OpenSilver.Internal.Data
             return Source == null || (_prop == null && _field == null && _dp == null);
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        void IPropertyChangedListener.OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if ((e.PropertyName == _propertyName || string.IsNullOrEmpty(e.PropertyName)) && (_prop != null || _field != null))
             {

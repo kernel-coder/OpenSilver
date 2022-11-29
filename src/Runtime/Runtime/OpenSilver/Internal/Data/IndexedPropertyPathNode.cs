@@ -19,14 +19,14 @@ using System.Reflection;
 
 namespace OpenSilver.Internal.Data
 {
-    internal sealed class IndexedPropertyPathNode : PropertyPathNode
+    internal sealed class IndexedPropertyPathNode : PropertyPathNode, IPropertyChangedListener
     {
         private const string IndexerPropertyName = "Item[]";
 
         private readonly string _index;
         private int? _intIndex;
         private PropertyInfo _indexer;
-        private WeakEventListener<IndexedPropertyPathNode, INotifyPropertyChanged, PropertyChangedEventArgs> _propertyChangedListener;
+        private WeakPropertyChangedListener _propertyChangedListener;
 
         private static readonly PropertyInfo _iListIndexer = GetIListIndexer();
 
@@ -61,18 +61,13 @@ namespace OpenSilver.Internal.Data
             {
                 if (_propertyChangedListener != null)
                 {
-                    _propertyChangedListener.Detach();
+                    _propertyChangedListener.Dispose();
                     _propertyChangedListener = null;
                 }
 
                 if (newValue is INotifyPropertyChanged inpc)
                 {
-                    _propertyChangedListener = new(this, inpc)
-                    {
-                        OnEventAction = static (instance, source, args) => instance.OnPropertyChanged(source, args),
-                        OnDetachAction = static (listener, source) => source.PropertyChanged -= listener.OnEvent,
-                    };
-                    inpc.PropertyChanged += _propertyChangedListener.OnEvent;
+                    _propertyChangedListener = new WeakPropertyChangedListener(this, inpc);
                 }
             }
 
@@ -135,7 +130,7 @@ namespace OpenSilver.Internal.Data
             }
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        void IPropertyChangedListener.OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == IndexerPropertyName)
             {
