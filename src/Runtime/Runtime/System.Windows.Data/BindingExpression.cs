@@ -499,7 +499,7 @@ namespace Windows.UI.Xaml.Data
         {
             if (sender == _dataErrorSource)
             {
-                if (e.PropertyName == _propertyPathWalker.FirstNode.PropertyName)
+                if (e.PropertyName == _propertyPathWalker.FinalNode.PropertyName)
                 {
                     UpdateNotifyDataErrors(_dataErrorSource, e.PropertyName, DependencyProperty.UnsetValue);
                 }
