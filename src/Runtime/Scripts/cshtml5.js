@@ -450,11 +450,11 @@ document._attachEventListeners = function (element, handler, isFocusable) {
     store.isFocusable = isFocusable;
 
     view.addEventListener('mousedown', store['mousedown'] = bubblingEventHandler);
-    //view.addEventListener('touchstart', store['touchstart'] = bubblingEventHandler, { passive: true });
+    view.addEventListener('touchstart', store['touchstart'] = bubblingEventHandler, { passive: true });
     view.addEventListener('mouseup', store['mouseup'] = bubblingEventHandler);
-    //view.addEventListener('touchend', store['touchend'] = bubblingEventHandler);
+    view.addEventListener('touchend', store['touchend'] = bubblingEventHandler);
     view.addEventListener('mousemove', store['mousemove'] = bubblingEventHandler);
-    //view.addEventListener('touchmove', store['touchmove'] = bubblingEventHandler, { passive: true });
+    view.addEventListener('touchmove', store['touchmove'] = bubblingEventHandler, { passive: true });
     view.addEventListener('wheel', store['wheel'] = bubblingEventHandler, { passive: true });
     view.addEventListener('mouseenter', store['mouseenter'] = handler);
     view.addEventListener('mouseleave', store['mouseleave'] = handler);
@@ -474,11 +474,11 @@ document._removeEventListeners = function (element) {
 
     const store = view._eventsStore;
     view.removeEventListener('mousedown', store['mousedown']);
-    //view.removeEventListener('touchstart', store['touchstart']);
+    view.removeEventListener('touchstart', store['touchstart']);
     view.removeEventListener('mouseup', store['mouseup']);
-    //view.removeEventListener('touchend', store['touchend']);
+    view.removeEventListener('touchend', store['touchend']);
     view.removeEventListener('mousemove', store['mousemove']);
-    //view.removeEventListener('touchmove', store['touchmove']);
+    view.removeEventListener('touchmove', store['touchmove']);
     view.removeEventListener('wheel', store['wheel']);
     view.removeEventListener('mouseenter', store['mouseenter']);
     view.removeEventListener('mouseleave', store['mouseleave']);
