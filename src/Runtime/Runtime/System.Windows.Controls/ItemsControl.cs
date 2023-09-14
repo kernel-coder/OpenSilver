@@ -77,6 +77,17 @@ namespace Windows.UI.Xaml.Controls
 
         #region Public Properties
 
+        private bool _enableFiltering = false;
+        public bool EnableFiltering
+        {
+            get => _enableFiltering;
+            set
+            {
+                _enableFiltering = value;
+                this.Items.FilterItem = value ? FilterItem : null;
+            }
+        }
+
         /// <summary>
         /// Items is the collection of data that is used to generate the content
         /// of this control.
@@ -111,7 +122,6 @@ namespace Windows.UI.Xaml.Controls
         private void CreateItemCollectionAndGenerator()
         {
             this._items = new ItemCollection(this);
-
             // the generator must attach its collection change handler before
             // the control itself, so that the generator is up-to-date by the
             // time the control tries to use it
@@ -936,6 +946,16 @@ namespace Windows.UI.Xaml.Controls
             }
 
             e.Handled = true;
+        }
+
+        protected virtual bool FilterItem(object item)
+        {
+            return true;
+        }
+
+        public void ApplyFilter()
+        {
+            this.Items.Refresh();
         }
 
         #region Obsolete
