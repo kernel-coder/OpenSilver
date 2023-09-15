@@ -42,7 +42,36 @@ namespace Windows.UI.Xaml.Controls
             this._modelParent = parent;
         }
 
-        internal Func<object, bool> FilterItem { get; set; }
+        private Func<object, bool> _filterFunction;
+        internal Func<object, bool> FilterFunction
+        {
+            get => _filterFunction;
+            set
+            {
+                _filterFunction = value;
+
+                if (_filterFunction == null)
+                {
+                    _filteredItemsWrapper = null;
+                }
+                else
+                {
+                    if (_filteredItemsWrapper == null)
+                    {
+                        _filteredItemsWrapper = new FilteredEnumerableWrapper(this);
+                        _filteredItemsWrapper.SetSource(_isUsingItemsSource ? _itemsSource : this);
+                    }
+                    else if (_filteredItemsWrapper != null)
+                    {
+                        _filteredItemsWrapper.Refresh();
+                    }
+                }
+            }
+        }
+
+
+        private FilteredEnumerableWrapper _filteredItemsWrapper;
+        internal IList FilteredItems => _filteredItemsWrapper; 
 
         internal override bool IsFixedSizeImpl
         {
@@ -62,7 +91,7 @@ namespace Windows.UI.Xaml.Controls
             }
 
             this.SetModelParent(value);
-            this.AddInternal(value);
+            this.AddInternal(value);            
         }
 
         internal override void ClearOverride()
@@ -70,7 +99,7 @@ namespace Windows.UI.Xaml.Controls
             if (this.IsUsingItemsSource)
             {
                 throw new InvalidOperationException("Operation is not valid while ItemsSource is in use. Access and modify elements with ItemsControl.ItemsSource instead.");
-            }
+            }            
 
             foreach (var item in this)
             {
@@ -86,7 +115,7 @@ namespace Windows.UI.Xaml.Controls
             {
                 throw new InvalidOperationException("Operation is not valid while ItemsSource is in use. Access and modify elements with ItemsControl.ItemsSource instead.");
             }
-
+            
             this.SetModelParent(value);
             this.InsertInternal(index, value);
         }
@@ -97,7 +126,7 @@ namespace Windows.UI.Xaml.Controls
             {
                 throw new InvalidOperationException("Operation is not valid while ItemsSource is in use. Access and modify elements with ItemsControl.ItemsSource instead.");
             }
-
+            
             object removedItem = this.GetItemInternal(index);
             this.ClearModelParent(removedItem);
             this.RemoveAtInternal(index);
@@ -241,10 +270,25 @@ namespace Windows.UI.Xaml.Controls
                 throw new InvalidOperationException("Items collection must be empty before using ItemsSource.");
             }
 
+            if (value == null)
+            {
+                throw new InvalidOperationException("ItemsSource must not be null");
+            }
+
             this.TryUnsubscribeFromCollectionChangedEvent();
 
             this._itemsSource = value;
             this._isUsingItemsSource = true;
+
+            if (_filterFunction != null && _filteredItemsWrapper == null)
+            {
+                _filteredItemsWrapper = new FilteredEnumerableWrapper(this);                
+            }
+           
+            if (_filteredItemsWrapper != null)
+            {
+                _filteredItemsWrapper.SetSource(_itemsSource);
+            }
 
             this.TrySubscribeToCollectionChangedEvent(value);
 
@@ -257,6 +301,11 @@ namespace Windows.UI.Xaml.Controls
 
         internal void ClearItemsSource()
         {
+            if (_filteredItemsWrapper != null)
+            {
+                _filteredItemsWrapper = null;
+            }
+
             if (this.IsUsingItemsSource)
             {
                 // return to normal mode
@@ -275,14 +324,27 @@ namespace Windows.UI.Xaml.Controls
 
         private void InitializeSourceList(IEnumerable sourceCollection)
         {
-            this._listWrapper = new EnumerableWrapper(sourceCollection, this);
-            this._isUsingListWrapper = true;
+            IList sourceAsList = sourceCollection as IList;
+            if (sourceAsList == null)
+            {
+                this._listWrapper = new EnumerableWrapper();
+                this._listWrapper.SetSource(sourceCollection);
+                this._isUsingListWrapper = true;
+            }
+            else
+            {
+                this._listWrapper = null;
+                this._isUsingListWrapper = false;
+            }
         }
 
-        internal void Refresh()
+        internal void RefreshFilteredItems()
         {
-            _listWrapper?.Refresh();
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            if (_filteredItemsWrapper != null)
+            {
+                _filteredItemsWrapper?.Refresh();
+                this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
         }
 
         private void ValidateCollectionChangedEventArgs(NotifyCollectionChangedEventArgs e)
@@ -329,22 +391,16 @@ namespace Windows.UI.Xaml.Controls
                 switch (e.Action)
                 {
                     case NotifyCollectionChangedAction.Add:
-                        for (int i = 0; i < e.NewItems.Count; i++)
-                        {
-                            this._listWrapper.InsertOverride(e.NewStartingIndex + i, e.NewItems[i]);
-                        }
+                        this._listWrapper.InsertOverride(e.NewStartingIndex, e.NewItems[0]);
                         break;
                     case NotifyCollectionChangedAction.Remove:
                         this._listWrapper.RemoveAtOverride(e.OldStartingIndex);
                         break;
                     case NotifyCollectionChangedAction.Move:
-                        this._listWrapper.Move(e.OldStartingIndex, e.NewStartingIndex);
+                        this._listWrapper.MoveOverride(e.OldStartingIndex, e.NewStartingIndex);
                         break;
                     case NotifyCollectionChangedAction.Replace:
-                        for (int i = 0; i < e.NewItems.Count; i++)
-                        {
-                            this._listWrapper.ReplaceAt(e.NewStartingIndex + i, e.NewItems[i]);
-                        }
+                        this._listWrapper.ReplaceAtOverride(e.OldStartingIndex, e.NewItems[0]);
                         break;
                     case NotifyCollectionChangedAction.Reset:
                         this._listWrapper.Refresh();
@@ -356,6 +412,33 @@ namespace Windows.UI.Xaml.Controls
 
             // Raise collection changed
             this.OnCollectionChanged(e);
+        }
+
+        protected internal override void __OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            if (_filteredItemsWrapper != null)
+            {
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        this._filteredItemsWrapper.InsertOverride(e.NewStartingIndex, e.NewItems[0]);
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        this._filteredItemsWrapper.RemoveAtOverride(e.OldStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Move:
+                        this._filteredItemsWrapper.MoveOverride(e.OldStartingIndex, e.NewStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Replace:
+                        this._filteredItemsWrapper.ReplaceAtOverride(e.OldStartingIndex, e.NewItems[0]);
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        this._filteredItemsWrapper.Refresh();
+                        break;
+                }
+            }
+
+            base.__OnCollectionChanged(e);
         }
 
         private void SetModelParent(object item)
@@ -398,27 +481,73 @@ namespace Windows.UI.Xaml.Controls
 
         private class EnumerableWrapper : List<object>
         {
-            private IEnumerable _sourceCollection;
-            private ItemCollection _owner; // unused
+            protected IEnumerable _sourceCollection;
 
-            public EnumerableWrapper(IEnumerable source, ItemCollection owner)
+            public void SetSource(IEnumerable source)
             {
                 Debug.Assert(source != null);
-                Debug.Assert(owner != null);
-                this._sourceCollection = source;
-                this._owner = owner;
+                _sourceCollection = source;
+                Refresh();
+            }
 
-                this.Refresh();
+            public void Refresh()
+            {
+                this.Clear();
+
+                IEnumerator enumerator = this._sourceCollection?.GetEnumerator();
+                while (enumerator?.MoveNext() == true)
+                {
+                    this.AddOverride(enumerator.Current);
+                }
+            }
+            
+            public virtual void AddOverride(object item)
+            {
+                this.Add(item);
+            }
+
+            public virtual void InsertOverride(int index, object item)
+            {
+                Insert(index, item);              
+            }
+
+            public virtual void RemoveAtOverride(int index)
+            {
+                RemoveAt(index);
+            }
+
+            public virtual void ReplaceAtOverride(int index, object item)
+            {
+                this[index] = item;
+            }
+
+            public virtual void MoveOverride(int oldIndex, int newIndex)
+            {
+                if (oldIndex == newIndex)
+                {
+                    return;
+                }
+
+                var item = this[oldIndex];
+
+                this.RemoveAt(oldIndex);
+                this.Insert(newIndex, item);
+            }
+        }
+
+        private class FilteredEnumerableWrapper : EnumerableWrapper
+        {
+            private ItemCollection _owner;
+
+            public FilteredEnumerableWrapper(ItemCollection owner)
+            {
+                Debug.Assert(owner != null);
+                this._owner = owner;
             }
 
             private int IdxSource2Me(int idx)
             {
                 return this.Count + idx - _sourceCollection.Count();
-            }
-
-            private int IdxMe2Source(int idx)
-            {
-                return idx  + _sourceCollection.Count() - this.Count;
             }
 
             private object ItemInSourceAt(int index)
@@ -437,34 +566,23 @@ namespace Windows.UI.Xaml.Controls
                 throw new ArgumentOutOfRangeException("at", "expected value less then " + idx);
             }
 
-            public void Refresh()
+            public override void AddOverride(object item)
             {
-                this.Clear();
-
-                IEnumerator enumerator = this._sourceCollection.GetEnumerator();
-                while (enumerator.MoveNext())
-                {
-                    this.AddOverride(enumerator.Current);
-                }
-            }
-            
-            public void AddOverride(object item)
-            {
-                if (_owner.FilterItem == null || _owner.FilterItem(item))
+                if (_owner.FilterFunction != null && _owner.FilterFunction(item))
                 {
                     this.Add(item);
                 }
             }
 
-            public void InsertOverride(int index, object item)
+            public override void InsertOverride(int index, object item)
             {
-                if (_owner.FilterItem == null || _owner.FilterItem(item))
+                if (_owner.FilterFunction != null && _owner.FilterFunction(item))
                 {
                     Insert(IdxSource2Me(index), item);
-                }                
+                }
             }
 
-            public void RemoveAtOverride(int index)
+            public override void RemoveAtOverride(int index)
             {
                 if (this.Contains(ItemInSourceAt(index)))
                 {
@@ -472,12 +590,12 @@ namespace Windows.UI.Xaml.Controls
                 }
             }
 
-            public void ReplaceAt(int index, object item)
+            public override void ReplaceAtOverride(int index, object item)
             {
                 this[IdxSource2Me(index)] = item;
             }
 
-            public void Move(int oldIndex, int newIndex)
+            public override void MoveOverride(int oldIndex, int newIndex)
             {
                 if (oldIndex == newIndex)
                 {
@@ -485,7 +603,6 @@ namespace Windows.UI.Xaml.Controls
                 }
 
                 var myOldIndex = IdxSource2Me(oldIndex);
-
                 var item = this[myOldIndex];
 
                 this.RemoveAt(myOldIndex);

@@ -196,13 +196,13 @@ namespace Windows.UI.Xaml.Controls
                 // we remove it anyway because ScrollContentPresenter does not properly work with an
                 // external IScrollInfo which leads to layout issues
                 if ((item < first || item > last) &&
-                    /*!((IGeneratorHost)owner).IsItemItsOwnContainer(owner.Items[item]) &&*/ 
+                    /*!((IGeneratorHost)owner).IsItemItsOwnContainer(owner.RenderableItems[item]) &&*/
                     NotifyCleanupItem(Children[pos.Index], owner))
                 {
                     RemoveInternalChildRange(pos.Index, 1);
 
                     if (mode == VirtualizationMode.Recycling &&
-                        !((IGeneratorHost)owner).IsItemItsOwnContainer(owner.Items[item]))
+                        !((IGeneratorHost)owner).IsItemItsOwnContainer(owner.RenderableItems[item]))
                         generator.Recycle(pos, 1);
                     else
                     {
@@ -258,7 +258,7 @@ namespace Windows.UI.Xaml.Controls
             // we hook up to some events on it.
             EnsureGenerator();
             IItemContainerGenerator generator = ItemContainerGenerator;
-            if (owner.Items.Count > 0)
+            if (owner.RenderableItems.Count > 0)
             {
                 GeneratorPosition start;
                 int insertAt;
@@ -277,7 +277,7 @@ namespace Windows.UI.Xaml.Controls
                 {
                     bool isNewlyRealized;
 
-                    for (int i = index; i < owner.Items.Count && beyond < 2; i++, insertAt++)
+                    for (int i = index; i < owner.RenderableItems.Count && beyond < 2; i++, insertAt++)
                     {
                         // Generate the child container
                         UIElement child = (UIElement)generator.GenerateNext(out isNewlyRealized);
@@ -335,9 +335,9 @@ namespace Windows.UI.Xaml.Controls
             // Update our Extent and Viewport values
             if (Orientation == Orientation.Vertical)
             {
-                if (ExtentHeight != owner.Items.Count)
+                if (ExtentHeight != owner.RenderableItems.Count)
                 {
-                    ExtentHeight = owner.Items.Count;
+                    ExtentHeight = owner.RenderableItems.Count;
                     invalidate = true;
                 }
 
@@ -367,9 +367,9 @@ namespace Windows.UI.Xaml.Controls
                     invalidate = true;
                 }
 
-                if (ExtentWidth != owner.Items.Count)
+                if (ExtentWidth != owner.RenderableItems.Count)
                 {
-                    ExtentWidth = owner.Items.Count;
+                    ExtentWidth = owner.RenderableItems.Count;
                     invalidate = true;
                 }
 
@@ -505,7 +505,7 @@ namespace Windows.UI.Xaml.Controls
                     }
 
                     // adjust for items removed in the current view and/or beyond the current view
-                    offset = Math.Min(offset, owner.Items.Count - viewable);
+                    offset = Math.Min(offset, owner.RenderableItems.Count - viewable);
                     offset = Math.Max(offset, 0);
 
                     if (Orientation == Orientation.Horizontal)

@@ -837,7 +837,7 @@ namespace Windows.UI.Xaml.Controls
         // The collection of items, as IList
         internal IList ItemsInternal
         {
-            get { return _items; }
+            get { return _items.FilteredItems != null ? _items.FilteredItems : _items; }
         }
 
         /// <summary>
@@ -1971,7 +1971,7 @@ namespace Windows.UI.Xaml.Controls
         private GeneratorStatus _status;
         private int _startIndexForUIFromItem;
         private DependencyObject _peer;
-        private IList _items;
+        private ItemCollection _items;
 
         private Type _containerType;     // type of containers on the recycle queue
         private Queue<DependencyObject> _recyclableContainers = new Queue<DependencyObject>();

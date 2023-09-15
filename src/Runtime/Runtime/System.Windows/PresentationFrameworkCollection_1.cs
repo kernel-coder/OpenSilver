@@ -656,7 +656,7 @@ namespace Windows.UI.Xaml
             }
         }
 
-        private void __OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        protected internal virtual void __OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
             NotifyCollectionChangedEventHandler handler = this.CollectionChanged;
             if (handler != null)

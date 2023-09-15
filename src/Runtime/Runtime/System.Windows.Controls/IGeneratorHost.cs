@@ -3,6 +3,7 @@ using System.Collections;
 
 #if MIGRATION
 using System.Windows;
+using System.Windows.Controls;
 #else
 using Windows.UI.Xaml;
 #endif
@@ -11,7 +12,7 @@ namespace CSHTML5.Internals.Controls
 {
     internal interface IGeneratorHost
     {
-        IList View { get; }
+        ItemCollection View { get; }
 
         void ClearContainerForItem(DependencyObject container, object item);
         DependencyObject GetContainerForItem(object item, DependencyObject recycledContainer);

@@ -77,14 +77,17 @@ namespace Windows.UI.Xaml.Controls
 
         #region Public Properties
 
+        /// <summary>
+        /// Enables filtering. Should be enabled at the very beginning in the descendent constructor.
+        /// </summary>
         private bool _enableFiltering = false;
-        public bool EnableFiltering
+        protected bool EnableFiltering
         {
             get => _enableFiltering;
             set
             {
                 _enableFiltering = value;
-                this.Items.FilterItem = value ? FilterItem : null;
+                this.Items.FilterFunction = value ? FilterItem : null;
             }
         }
 
@@ -314,10 +317,13 @@ namespace Windows.UI.Xaml.Controls
         /// <summary>
         /// The view of the data
         /// </summary>
-        IList IGeneratorHost.View
+        ItemCollection IGeneratorHost.View
         {
             get { return Items; }
         }
+
+        internal IList RenderableItems => Items.FilteredItems != null ? Items.FilteredItems : Items;
+    
 
         void IGeneratorHost.ClearContainerForItem(DependencyObject container, object item)
         {
@@ -955,7 +961,7 @@ namespace Windows.UI.Xaml.Controls
 
         public void ApplyFilter()
         {
-            this.Items.Refresh();
+            this.Items.RefreshFilteredItems();
         }
 
         #region Obsolete
